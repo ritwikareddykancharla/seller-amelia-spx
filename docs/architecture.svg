@@ -1,0 +1,68 @@
+<svg viewBox="0 0 1200 680" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SellerAmelia System Architecture">
+  <rect width="1200" height="680" fill="#FAF7F2"/>
+  <rect x="20" y="20" width="1160" height="135" fill="#FFFFFF" stroke="#18181B" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="38" y="46" font-family="sans-serif" font-size="16" font-weight="800" fill="#9333EA">1. Browser UI and Serverless AWS Edge (CloudFront + Private S3 OAC + Python 3.12 Lambda)</text>
+
+  <rect x="40" y="64" width="220" height="72" fill="#F3E8FF" stroke="#18181B" stroke-width="2"/>
+  <text x="150" y="94" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#18181B">Seller &amp; Planner UI</text>
+  <text x="150" y="116" text-anchor="middle" font-family="monospace" font-size="11" fill="#581C87">4 Live Tabs · URL Hash State</text>
+
+  <rect x="310" y="64" width="250" height="72" fill="#EDE9FE" stroke="#18181B" stroke-width="2"/>
+  <text x="435" y="94" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#18181B">Amazon CloudFront CDN</text>
+  <text x="435" y="116" text-anchor="middle" font-family="monospace" font-size="11" fill="#4C1D95">/* -&gt; S3 OAC · /api/* -&gt; Lambda</text>
+
+  <rect x="615" y="64" width="245" height="72" fill="#DCFCE7" stroke="#18181B" stroke-width="2"/>
+  <text x="737" y="94" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#18181B">Private S3 Web Bucket</text>
+  <text x="737" y="116" text-anchor="middle" font-family="monospace" font-size="11" fill="#065F46">Public Access Blocked</text>
+
+  <rect x="900" y="64" width="260" height="72" fill="#FEF3C7" stroke="#18181B" stroke-width="2"/>
+  <text x="1030" y="94" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#18181B">AWS Lambda Python 3.12</text>
+  <text x="1030" y="116" text-anchor="middle" font-family="monospace" font-size="11" fill="#92400E">seller_amelia/server.py</text>
+
+  <rect x="20" y="180" width="1160" height="150" fill="#FFFFFF" stroke="#9333EA" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="38" y="206" font-family="sans-serif" font-size="16" font-weight="800" fill="#9333EA">2. Proactive Dollar-Impact Radar, Coupled (s, S) Optimizer &amp; ERP Harmonizer</text>
+
+  <rect x="40" y="224" width="355" height="86" fill="#F3E8FF" stroke="#18181B" stroke-width="2"/>
+  <text x="217" y="254" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#18181B">30-Day Revenue &amp; Margin Radar</text>
+  <text x="217" y="276" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#4C1D95">seller_amelia/anomaly_radar.py (120 SKUs)</text>
+  <text x="217" y="295" text-anchor="middle" font-family="monospace" font-size="10" fill="#3F3F46">Suppressions · Buy Box · NCX · Aged FBA</text>
+
+  <rect x="422" y="224" width="355" height="86" fill="#DBEAFE" stroke="#18181B" stroke-width="2"/>
+  <text x="599" y="254" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#18181B">Coupled (s, S) &amp; N-Tier BOM Engine</text>
+  <text x="599" y="276" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#1E3A8A">seller_amelia/replenishment_bom.py</text>
+  <text x="599" y="295" text-anchor="middle" font-family="monospace" font-size="10" fill="#3F3F46">Lateral Transfer vs Split PO vs Air</text>
+
+  <rect x="805" y="224" width="355" height="86" fill="#DCFCE7" stroke="#18181B" stroke-width="2"/>
+  <text x="982" y="254" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="#18181B">ERP CSV Schema Harmonizer</text>
+  <text x="982" y="276" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#065F46">seller_amelia/erp_harmonizer.py</text>
+  <text x="982" y="295" text-anchor="middle" font-family="monospace" font-size="10" fill="#3F3F46">Zero Silent Coercion Quarantine</text>
+
+  <rect x="20" y="355" width="1160" height="150" fill="#FFFFFF" stroke="#059669" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="38" y="381" font-family="sans-serif" font-size="16" font-weight="800" fill="#059669">3. Supervisor &amp; 4 Specialist Domain Agents (Concurrent Analysis)</text>
+
+  <rect x="40" y="400" width="265" height="84" fill="#FEF3C7" stroke="#18181B" stroke-width="2"/>
+  <text x="172" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#18181B">CatalogComplianceAgent</text>
+  <text x="172" y="454" text-anchor="middle" font-family="monospace" font-size="10" fill="#92400E">UN38.3 / Wh &amp; Listing Patches</text>
+
+  <rect x="325" y="400" width="265" height="84" fill="#FCE7F3" stroke="#18181B" stroke-width="2"/>
+  <text x="457" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#18181B">FBAEconomicsAgent</text>
+  <text x="457" y="454" text-anchor="middle" font-family="monospace" font-size="10" fill="#9D174D">Net Margin &amp; Aged Surcharges</text>
+
+  <rect x="610" y="400" width="265" height="84" fill="#DBEAFE" stroke="#18181B" stroke-width="2"/>
+  <text x="742" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#18181B">InventoryReplenishmentAgent</text>
+  <text x="742" y="454" text-anchor="middle" font-family="monospace" font-size="10" fill="#1E3A8A">Inter-DC Transfer &amp; Split POs</text>
+
+  <rect x="895" y="400" width="265" height="84" fill="#DCFCE7" stroke="#18181B" stroke-width="2"/>
+  <text x="1027" y="430" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="700" fill="#18181B">ReturnsQualityAgent</text>
+  <text x="1027" y="454" text-anchor="middle" font-family="monospace" font-size="10" fill="#065F46">NCX Defect Root-Cause Fixes</text>
+
+  <rect x="20" y="530" width="565" height="125" fill="#F3E8FF" stroke="#18181B" stroke-width="2.2"/>
+  <text x="302" y="564" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="800" fill="#581C87">4a. Amazon Bedrock Action Synthesis</text>
+  <text x="302" y="590" text-anchor="middle" font-family="monospace" font-size="11.5" fill="#18181B">us.amazon.nova-lite-v1:0 (Converse API)</text>
+  <text x="302" y="616" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#4C1D95">Grounded Executive Action Briefs</text>
+
+  <rect x="615" y="530" width="565" height="125" fill="#FEE2E2" stroke="#18181B" stroke-width="2.2"/>
+  <text x="897" y="564" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="800" fill="#991B1B">4b. Margin-Floor Approval Gate &amp; SQLite Audit Log</text>
+  <text x="897" y="590" text-anchor="middle" font-family="monospace" font-size="11.5" fill="#18181B">Margin &amp; MOQ Guardrails + Co-Sign + SHA-256 Chain</text>
+  <text x="897" y="616" text-anchor="middle" font-family="monospace" font-size="10.5" fill="#7F1D1D">Blocks Loss-Making Edits Before Execution</text>
+</svg>

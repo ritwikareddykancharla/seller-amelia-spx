@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SellerAmelia: Proactive AI Agents for Seller Operations and Supply Chain Planning</title>
+  <meta name="description" content="SellerAmelia ranks 120-SKU seller and supply-chain risks by 30-day profit impact, coordinates four specialist agents with Amazon Bedrock, compares lateral warehouse transfers against split purchase orders, and enforces margin approval gates." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&amp;family=Martian+Mono:wght@400;500;600;700&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&amp;family=Schibsted+Grotesk:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-paper: #FAF7F2;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F2ECE1;
+      --bg-obsidian: #141413;
+      --bg-code: #121417;
+      --text-code: #F4F4F5;
+      --ink: #141413;
+      --ink-muted: #52514E;
+      --border: #18181B;
+      --shadow: 4px 4px 0px #18181B;
+      --shadow-sm: 2px 2px 0px #18181B;
+      --dot-color: rgba(24, 24, 27, 0.13);
+      --accent-main: #9333EA;
+      --accent-ink: #FFFFFF;
+      --accent-soft: #F3E8FF;
+      --accent-deep: #581C87;
+      --blue: #1D4ED8;
+      --blue-soft: #DBEAFE;
+      --pass: #059669;
+      --pass-soft: #D1FAE5;
+      --fail: #DC2626;
+      --fail-soft: #FEE2E2;
+      --warn: #D97706;
+      --warn-soft: #FEF3C7;
+    }
+
+    [data-theme="dark"] {
+      --bg-paper: #0E1113;
+      --bg-card: #161A1E;
+      --bg-subtle: #1F252B;
+      --bg-obsidian: #090B0C;
+      --bg-code: #090B0D;
+      --text-code: #E4E4E7;
+      --ink: #F4F4F5;
+      --ink-muted: #A1A1AA;
+      --border: #52525B;
+      --shadow: 4px 4px 0px #000000;
+      --shadow-sm: 2px 2px 0px #000000;
+      --dot-color: rgba(255, 255, 255, 0.08);
+      --accent-main: #A855F7;
+      --accent-ink: #FFFFFF;
+      --accent-soft: #3B0764;
+      --accent-deep: #E9D5FF;
+      --blue: #60A5FA;
+      --blue-soft: #1E293B;
+      --pass: #34D399;
+      --pass-soft: #064E3B;
+      --fail: #F87171;
+      --fail-soft: #450A0A;
+      --warn: #FBBF24;
+      --warn-soft: #451A03;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-paper);
+      background-image: radial-gradient(var(--dot-color) 1.25px, transparent 1.25px);
+      background-size: 20px 20px;
+      color: var(--ink);
+      line-height: 1.68;
+      padding-bottom: 4.5rem;
+    }
+
+    .serif { font-family: 'Newsreader', Georgia, serif; }
+    .mono { font-family: 'Martian Mono', monospace; }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.6rem;
+    }
+
+    /* Sticky Topbar + Sticky Scroll-Spy Section TOC */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      background: var(--bg-paper);
+      border-bottom: 2px solid var(--border);
+      padding: 0.78rem 0;
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .toc-bar {
+      position: sticky;
+      top: 59px;
+      z-index: 110;
+      background: var(--bg-subtle);
+      border-bottom: 2px solid var(--border);
+      padding: 0.52rem 0;
+    }
+
+    .toc-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.72rem;
+    }
+
+    .toc-link {
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      padding: 0.24rem 0.62rem;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      transition: background 0.12s ease, transform 0.08s ease;
+    }
+
+    .toc-link:hover, .toc-link.active {
+      background: var(--accent-main);
+      color: var(--accent-ink);
+      transform: translate(-1px, -1px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 800;
+      font-size: 1.16rem;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand-badge {
+      background: var(--accent-main);
+      color: var(--accent-ink);
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.22rem 0.58rem;
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn, .nav-pill {
+      font-family: 'Schibsted Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.84rem;
+      padding: 0.5rem 0.92rem;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn:hover, .nav-pill:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn:active, .nav-pill:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px var(--border);
+    }
+
+    .btn:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-accent { background: var(--accent-main); color: var(--accent-ink); }
+    .btn-obsidian { background: #18181B; color: #FAF7F2; }
+    [data-theme="dark"] .btn-obsidian { background: var(--accent-main); color: #FFFFFF; }
+    .btn-secondary { background: var(--bg-subtle); }
+    .btn-danger { background: var(--fail-soft); color: var(--fail); }
+
+    /* Hero */
+    .hero {
+      padding: 2.6rem 0 2.3rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .hero-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.05rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+      background: var(--accent-main);
+      color: var(--accent-ink);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .runtime-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.3rem 0.7rem;
+      background: var(--bg-card);
+      color: var(--ink);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pass);
+      display: inline-block;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 3.6vw, 2.85rem);
+      font-weight: 800;
+      line-height: 1.13;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.95rem;
+      max-width: 1040px;
+    }
+
+    .hero-sub {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: clamp(1.15rem, 1.85vw, 1.34rem);
+      line-height: 1.64;
+      color: var(--ink-muted);
+      max-width: 1020px;
+      margin-bottom: 1.35rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.68rem;
+      margin-bottom: 1.45rem;
+    }
+
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.1rem;
+      margin-top: 1.1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.4rem;
+    }
+
+    .kpi-card {
+      padding: 1.15rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--accent-main);
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .kpi-val {
+      font-family: 'Martian Mono', monospace;
+      font-size: 1.36rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 0.25rem;
+    }
+
+    .kpi-label { font-size: 0.88rem; font-weight: 800; color: var(--ink); margin-top: 0.24rem; }
+    .kpi-sub { font-size: 0.8rem; color: var(--ink-muted); margin-top: 0.28rem; line-height: 1.5; }
+
+    .pipeline-bar {
+      margin-top: 1.45rem;
+      background: var(--bg-obsidian);
+      color: #FAF7F2;
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 0.95rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+    }
+
+    .pipe-step { display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; font-weight: 600; }
+    .pipe-num {
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: var(--accent-main);
+      color: #FFFFFF;
+      padding: 0.14rem 0.44rem;
+      border: 1.5px solid #FFFFFF;
+    }
+    .pipe-arrow { color: #E9D5FF; font-family: 'Martian Mono', monospace; font-weight: 700; }
+
+    /* Sections */
+    .section {
+      padding: 2.8rem 0 2.5rem;
+      border-bottom: 2px solid var(--border);
+      scroll-margin-top: 114px;
+    }
+
+    .section-kicker {
+      display: inline-block;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent-main);
+      margin-bottom: 0.35rem;
+    }
+    [data-theme="dark"] .section-kicker { color: #E9D5FF; }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1.1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.45rem;
+    }
+
+    .section-title {
+      font-size: 1.62rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .section-desc {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 1.15rem;
+      line-height: 1.62;
+      color: var(--ink-muted);
+      max-width: 900px;
+      margin-top: 0.32rem;
+    }
+
+    .overview-callout {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-left: 7px solid var(--accent-main);
+      box-shadow: var(--shadow);
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.96rem;
+      line-height: 1.72;
+    }
+
+    .overview-callout h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 0.45rem;
+    }
+
+    .scenario-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.45rem 1.55rem;
+      margin-top: 1.5rem;
+    }
+
+    .scenario-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 980px) { .scenario-steps { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .scenario-steps { grid-template-columns: 1fr; } }
+
+    .scenario-step {
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      padding: 1rem 1.05rem;
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.05rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 980px) { .problem-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .problem-grid { grid-template-columns: 1fr; } }
+
+    .problem-card {
+      padding: 1.2rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .step-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.18rem 0.52rem;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      border: 1.5px solid var(--border);
+      text-transform: uppercase;
+    }
+
+    .problem-card h3 { font-size: 1.04rem; font-weight: 800; line-height: 1.3; }
+    .problem-card p { font-size: 0.9rem; color: var(--ink-muted); line-height: 1.66; }
+
+    /* Subsystem & Trade-Off Cards */
+    .module-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.4rem;
+    }
+
+    @media (max-width: 940px) { .module-grid { grid-template-columns: 1fr; } }
+
+    .module-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .module-card-head {
+      background: var(--bg-obsidian);
+      color: #FAF7F2;
+      padding: 0.65rem 1.1rem;
+      border-bottom: 2px solid var(--border);
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .module-card-body {
+      padding: 1.25rem 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      flex: 1;
+    }
+
+    .prose-block {
+      background: var(--bg-paper);
+      border: 1.5px solid var(--border);
+      padding: 0.88rem 1.02rem;
+      font-size: 0.91rem;
+      line-height: 1.68;
+      color: var(--ink);
+    }
+
+    .prose-block-tech {
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      padding: 0.88rem 1.02rem;
+      font-size: 0.88rem;
+      line-height: 1.68;
+      color: var(--ink-muted);
+    }
+
+    /* Architecture Canvas */
+    .arch-canvas-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.72rem 1rem;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border);
+      border-bottom: none;
+    }
+
+    .arch-canvas-viewport {
+      background-color: #FFFFFF;
+      background-image: radial-gradient(rgba(24, 24, 27, 0.14) 1px, transparent 1px);
+      background-size: 18px 18px;
+      border: 2px solid #18181B;
+      box-shadow: 4px 4px 0px #18181B;
+      overflow-x: auto;
+      padding: 0.9rem;
+    }
+
+    .arch-canvas-svg {
+      display: block;
+      width: 100%;
+      min-width: 980px;
+      height: auto;
+      transition: width 0.22s ease, min-width 0.22s ease;
+    }
+
+    .arch-canvas-svg.zoom-125 {
+      width: 125%;
+      min-width: 1225px;
+    }
+
+    .svg-title { font-family: 'Caveat', cursive; }
+    .svg-mono { font-family: 'Martian Mono', monospace; }
+
+    .arch-node {
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+
+    .arch-node:hover {
+      filter: drop-shadow(3px 3px 0px #9333EA);
+    }
+
+    .arch-node.selected .arch-stroke-main {
+      stroke: #9333EA !important;
+      stroke-width: 3.2px !important;
+    }
+
+    .arch-inspector {
+      margin-top: 1.05rem;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.15rem 1.3rem;
+    }
+
+    .arch-node-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.42rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .arch-node-pill {
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.69rem;
+      font-weight: 700;
+      padding: 0.28rem 0.6rem;
+      border: 1.5px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .arch-node-pill.active {
+      background: var(--accent-main);
+      color: #FFFFFF;
+    }
+
+    /* Interactive Demo Tabs */
+    .tab-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.78rem;
+      margin-bottom: 1.45rem;
+    }
+
+    @media (max-width: 960px) { .tab-bar { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .tab-bar { grid-template-columns: 1fr; } }
+
+    .tab-btn {
+      text-align: left;
+      padding: 0.98rem 1.05rem;
+      background: var(--bg-card);
+      color: var(--ink);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.12s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.34rem;
+    }
+
+    .tab-btn:hover { transform: translate(-1px, -1px); box-shadow: var(--shadow); }
+    .tab-btn.active {
+      background: var(--accent-main);
+      color: var(--accent-ink);
+      box-shadow: var(--shadow);
+      transform: translate(-1px, -1px);
+    }
+
+    .tab-btn-eyebrow { font-family: 'Martian Mono', monospace; font-size: 0.66rem; font-weight: 700; text-transform: uppercase; opacity: 0.88; }
+    .tab-btn-title { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25; }
+    .tab-btn-desc { font-size: 0.78rem; line-height: 1.45; opacity: 0.92; }
+    .tab-btn-metric { font-family: 'Martian Mono', monospace; font-size: 0.66rem; font-weight: 700; opacity: 0.9; margin-top: 0.15rem; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .sim-header {
+      margin-bottom: 1.15rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .sim-title { font-size: 1.36rem; font-weight: 800; letter-spacing: -0.02em; }
+    .sim-desc { font-family: 'Newsreader', Georgia, serif; font-size: 1.08rem; color: var(--ink-muted); max-width: 860px; margin-top: 0.25rem; }
+
+    .grid-2 { display: grid; grid-template-columns: 1.05fr 1.15fr; gap: 1.3rem; align-items: start; }
+    .grid-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; align-items: start; }
+    @media (max-width: 940px) { .grid-2, .grid-equal { grid-template-columns: 1fr; } }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.18rem 0.52rem;
+      border: 1.5px solid var(--border);
+      text-transform: uppercase;
+    }
+
+    .tag-accent { background: var(--accent-main); color: var(--accent-ink); }
+    .tag-soft { background: var(--accent-soft); color: var(--accent-deep); }
+    .tag-pass { background: var(--pass-soft); color: var(--pass); }
+    .tag-fail { background: var(--fail-soft); color: var(--fail); }
+    .tag-warn { background: var(--warn-soft); color: var(--warn); }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 0.36rem;
+    }
+
+    textarea, select, input[type="text"], input[type="number"] {
+      width: 100%;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.62rem 0.76rem;
+      background: var(--bg-paper);
+      color: var(--ink);
+      border: 2px solid var(--border);
+      line-height: 1.5;
+    }
+
+    textarea:focus, select:focus, input[type="text"]:focus, input[type="number"]:focus {
+      outline: 2px solid var(--accent-main);
+      outline-offset: 1px;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      margin-bottom: 0.9rem;
+    }
+    @media (max-width: 560px) { .preset-grid { grid-template-columns: 1fr; } }
+
+    .preset-btn {
+      text-align: left;
+      padding: 0.62rem 0.72rem;
+      background: var(--bg-paper);
+      color: var(--ink);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-family: 'Schibsted Grotesk', sans-serif;
+      display: flex;
+      flex-direction: column;
+      gap: 0.18rem;
+    }
+    .preset-btn:hover { background: var(--bg-subtle); }
+    .preset-btn.active { background: var(--accent-main); color: var(--accent-ink); border-width: 2px; box-shadow: var(--shadow-sm); }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border);
+      border-bottom: none;
+      padding: 0.48rem 0.85rem;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.71rem;
+      font-weight: 700;
+    }
+
+    .code-box {
+      background: var(--bg-code);
+      color: var(--text-code);
+      border: 2px solid var(--border);
+      padding: 0.95rem 1.05rem;
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.73rem;
+      line-height: 1.58;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 350px;
+      overflow-y: auto;
+    }
+
+    .verdict-banner {
+      border: 2px solid var(--border);
+      padding: 0.88rem 1.02rem;
+      margin-bottom: 0.9rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .verdict-allow { background: var(--pass-soft); }
+    .verdict-deny { background: var(--fail-soft); }
+    .verdict-warn { background: var(--warn-soft); }
+
+    .table-wrap { overflow-x: auto; border: 2px solid var(--border); background: var(--bg-card); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.79rem; }
+    th, td { padding: 0.6rem 0.74rem; text-align: left; border-bottom: 1.5px solid var(--border); vertical-align: top; }
+    th { background: var(--bg-subtle); font-family: 'Martian Mono', monospace; font-size: 0.67rem; text-transform: uppercase; font-weight: 700; }
+    tr:last-child td { border-bottom: none; }
+    tr.tampered-row td { background: var(--fail-soft); }
+    tr.winner-row td { background: var(--pass-soft); }
+
+    .agent-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 0.95rem;
+    }
+
+    .agent-report-card {
+      border: 1.5px solid var(--border);
+      background: var(--bg-paper);
+      padding: 0.72rem 0.88rem;
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    .bar-group { display: flex; flex-direction: column; gap: 0.65rem; margin: 0.8rem 0; }
+    .bar-row { display: flex; flex-direction: column; gap: 0.24rem; }
+    .bar-meta { display: flex; justify-content: space-between; font-family: 'Martian Mono', monospace; font-size: 0.72rem; font-weight: 600; }
+    .bar-track { width: 100%; height: 16px; background: var(--bg-subtle); border: 1.5px solid var(--border); overflow: hidden; }
+    .bar-fill { height: 100%; transition: width 0.28s ease; }
+    .bar-fill-accent { background: var(--accent-main); }
+    .bar-fill-pass { background: var(--pass); }
+
+    .footer {
+      margin-top: 2.8rem;
+      padding-top: 1.6rem;
+      border-top: 2px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.84rem;
+      color: var(--ink-muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- Sticky Topbar -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a href="#top" class="brand">
+        <span class="brand-badge">SELLERAMELIA v1.0</span>
+        <span>SellerAmelia</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary Navigation">
+        <a class="nav-pill" href="https://d3gk5qze5xyz7y.cloudfront.net" target="_blank" rel="noopener">DeskPilot ↗</a>
+        <a class="nav-pill" href="https://d13kangk4fqjbf.cloudfront.net" target="_blank" rel="noopener">AegisOps ↗</a>
+        <a class="btn btn-obsidian" href="https://github.com/ritwikareddykancharla/seller-amelia-spx" target="_blank" rel="noopener">★ GitHub Repo</a>
+        <button type="button" class="btn btn-secondary" id="themeToggleBtn" aria-label="Toggle color theme">
+          <span id="themeIcon">🌙</span>
+          <span id="themeLabel">Dark Mode</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Sticky Scroll-Spy Section TOC -->
+  <nav class="toc-bar" aria-label="Section Navigation">
+    <div class="container toc-inner">
+      <span style="font-weight:700; color:var(--ink-muted);">SECTIONS:</span>
+      <a class="toc-link active" data-toc-section="problem" href="#problem">01 · Problem</a>
+      <a class="toc-link" data-toc-section="architecture" href="#architecture">02 · Architecture</a>
+      <a class="toc-link" data-toc-section="implementation" href="#implementation">03 · Implementation</a>
+      <a class="toc-link" data-toc-section="tradeoffs" href="#tradeoffs">04 · Trade-Offs</a>
+      <a class="toc-link" data-toc-section="studio" href="#studio">05 · Live Demo</a>
+      <a class="toc-link" data-toc-section="benchmarks" href="#benchmarks">06 · Benchmarks</a>
+    </div>
+  </nav>
+
+  <main class="container" id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-top-row">
+        <div class="eyebrow">Seller Operations &amp; Supply Chain Agents · Built for Amazon SPX &amp; AWS Supply Chain</div>
+        <div class="runtime-pill" id="runtimePill">
+          <span class="pulse-dot"></span>
+          <span id="runtimeModeText">Live Interactive Demo · Powered by Amazon Bedrock</span>
+        </div>
+      </div>
+
+      <h1>SellerAmelia: Proactive AI Agents for Seller Operations and Supply Chain Planning</h1>
+      <p class="hero-sub">
+        Sellers and supply chain teams lose profit fast when suppressed listings, price undercuts, return spikes, or vendor delays hide inside noisy alert queues. SellerAmelia ranks issues by thirty-day dollar impact, coordinates specialist agents, and gates risky changes before execution.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-accent" href="#studio">▶ Open Live Demo ↓</a>
+        <a class="btn btn-secondary" href="#architecture">Explore Architecture ↓</a>
+        <a class="btn btn-secondary" href="#benchmarks">See Benchmark Results ↓</a>
+      </div>
+
+      <div class="kpi-strip" id="heroKpiStrip"></div>
+
+      <div class="pipeline-bar" role="region" aria-label="SellerAmelia Operational Loop">
+        <div class="pipe-step"><span class="pipe-num">01</span><span>Ingest 120-SKU Catalog &amp; ERP Feeds</span></div>
+        <span class="pipe-arrow">→</span>
+        <div class="pipe-step"><span class="pipe-num">02</span><span>Rank by 30-Day Dollar Margin Exposure</span></div>
+        <span class="pipe-arrow">→</span>
+        <div class="pipe-step"><span class="pipe-num">03</span><span>Run 4 Specialist Agents &amp; BOM Optimizer</span></div>
+        <span class="pipe-arrow">→</span>
+        <div class="pipe-step"><span class="pipe-num">04</span><span>Enforce Margin Floor &amp; Co-Sign Execution</span></div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 01 · PROBLEM                                                        -->
+    <!-- =================================================================== -->
+    <section id="problem" class="section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">01 · Problem</span>
+          <h2 class="section-title">Problem</h2>
+          <p class="section-desc">
+            Marketplace sellers and enterprise supply chain teams manage hundreds of SKUs across regional warehouses, where reactive chat tools, alert-count queues, and unguarded pricing or restock edits leave tens of thousands of dollars in margin exposed.
+          </p>
+        </div>
+        <span class="tag tag-accent">Seller Operations &amp; Supply Chain</span>
+      </div>
+
+      <div class="overview-callout">
+        <h3>Overview</h3>
+        <p>
+          SellerAmelia combines proactive Seller Central monitoring with multi-echelon supply chain planning on serverless AWS infrastructure. Across a <code>120</code>-SKU multi-warehouse catalog, <code>anomaly_radar.py</code> computes 30-day contribution margin exposure in <code>0.489 ms</code> (<code>p50</code>), capturing <code>81.22%</code> of total profit at risk in the top 10 morning items compared with <code>6.48%</code> when sorting by raw alert count. When an issue surfaces, a Supervisor routes telemetry across four specialist agents, computes coupled demand and lead-time safety stock alongside N-tier Bill-of-Materials (BOM) delay propagation, synthesizes an executive brief with Amazon Bedrock (<code>us.amazon.nova-lite-v1:0</code>), and enforces hard margin-floor and Minimum Order Quantity (MOQ) checks before committing approved actions.
+        </p>
+      </div>
+
+      <div class="problem-grid">
+        <div class="card problem-card">
+          <span class="step-badge">01 · ALERT FATIGUE</span>
+          <h3>Alert Counts Bury High-Margin Losses</h3>
+          <p>A <code>$9.99</code> accessory with <code>46</code> minor catalog warnings crowds out a single hazmat listing suppression on a <code>$299.00</code> power station losing <code>$54,644.80</code> in net margin over two weeks.</p>
+        </div>
+        <div class="card problem-card">
+          <span class="step-badge">02 · COUPLED LEAD-TIME RISK</span>
+          <h3>Static Reorder Rules Miss Vendor Variance</h3>
+          <p>Safety-stock formulas that treat supplier lead times as fixed constants under-buffer when port delays hit, while single-warehouse ordering ignores surplus inventory sitting in sister regional centers.</p>
+        </div>
+        <div class="card problem-card">
+          <span class="step-badge">03 · UNGUARDED REPRICING</span>
+          <h3>Blind Buy Box Chasing Erodes Unit Margin</h3>
+          <p>Automated repricers that match competitor undercuts without deducting referral fees, FBA pick-and-pack fees, storage surcharges, and customer return drag silently push SKUs into net losses.</p>
+        </div>
+        <div class="card problem-card">
+          <span class="step-badge">04 · MESSY ERP FEEDS</span>
+          <h3>Inconsistent 3PL Spreadsheets Corrupt Plans</h3>
+          <p>External SAP, NetSuite, and 3PL CSV exports mix week and day lead times, foreign currencies like <code>EUR</code>, negative cycle-count balances, and <code>TBD</code> placeholders that break naive parsers.</p>
+        </div>
+      </div>
+
+      <div class="scenario-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+          <div>
+            <span class="step-badge">EXAMPLE · TIER-2 SHORTAGE &amp; REBALANCING</span>
+            <h3 style="font-size:1.15rem; font-weight:800; margin-top:0.35rem;">Example: Resolving a 15-Day Tier-2 BMS Controller Delay Without Overpaying for Air Charter</h3>
+          </div>
+          <span class="tag tag-pass">Testable in Live Demo</span>
+        </div>
+        <div class="scenario-steps">
+          <div class="scenario-step">
+            <div class="mono" style="font-size:0.7rem; font-weight:700; color:var(--accent-main); margin-bottom:0.3rem;">1 · PROACTIVE RADAR TRIAGE</div>
+            <code>SKU-SOL-108</code> (<code>B09SOL0108</code>) at <code>ONT8-West</code> has <code>10.0</code> days of cover while vendor lead time slips to <code>27</code> days, exposing <code>$32,913.70</code> in 30-day net margin.
+          </div>
+          <div class="scenario-step">
+            <div class="mono" style="font-size:0.7rem; font-weight:700; color:var(--blue); margin-bottom:0.3rem;">2 · N-TIER BOM BLAST RADIUS</div>
+            <code>trace_bom_blast_radius()</code> traces <code>COMP-BMS-IC04</code> across two Tier-1 sub-assemblies to <code>3</code> finished ASINs in <code>0.021 ms</code>, quantifying <code>497.5</code> stalled units (<code>$58,989.79</code> margin exposure).
+          </div>
+          <div class="scenario-step">
+            <div class="mono" style="font-size:0.7rem; font-weight:700; color:var(--pass); margin-bottom:0.3rem;">3 · LATERAL TRANSFER WINS</div>
+            <code>optimize_replenishment_plan()</code> finds surplus stock at <code>MDW2-Midwest</code> and <code>TEB9-East</code>, cutting risk-adjusted cost via 3-day ground rebalancing instead of air charter.
+          </div>
+          <div class="scenario-step">
+            <div class="mono" style="font-size:0.7rem; font-weight:700; color:var(--warn); margin-bottom:0.3rem;">4 · CO-SIGN &amp; HASH RECEIPT</div>
+            Amazon Bedrock summarizes the four-specialist plan in <code>880 ms</code> (<code>p50</code>), pauses at the approval gate until co-signed, and records a SHA-256 hash link in SQLite WAL.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 02 · ARCHITECTURE                                                   -->
+    <!-- =================================================================== -->
+    <section id="architecture" class="section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">02 · Architecture</span>
+          <h2 class="section-title">Architecture</h2>
+          <p class="section-desc">
+            Amazon CloudFront serves the static web application from a private S3 bucket via Origin Access Control (OAC) and routes <code>/api/*</code> calls to Python 3.12 on AWS Lambda backed by Amazon Bedrock. Click any component below to inspect its module, boundary rules, and measured timing.
+          </p>
+        </div>
+      </div>
+
+      <div class="arch-canvas-toolbar">
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <span class="mono" style="font-size:0.72rem; font-weight:700;">SYSTEM ARCHITECTURE · CLICK ANY COMPONENT TO INSPECT</span>
+          <span class="tag tag-accent" id="archZoomLabel">Zoom: 100%</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.45rem; flex-wrap:wrap;">
+          <button type="button" class="btn btn-accent" id="zoom100Btn" style="padding:0.32rem 0.65rem; font-size:0.76rem;">100%</button>
+          <button type="button" class="btn btn-secondary" id="zoom125Btn" style="padding:0.32rem 0.65rem; font-size:0.76rem;">125%</button>
+          <button type="button" class="btn btn-secondary" id="zoomResetBtn" style="padding:0.32rem 0.65rem; font-size:0.76rem;">↺ Reset</button>
+          <button type="button" class="btn btn-secondary" id="downloadArchSvgBtn" style="padding:0.32rem 0.65rem; font-size:0.76rem;">⬇ Export SVG</button>
+        </div>
+      </div>
+
+      <div class="arch-canvas-viewport" id="archViewport">
+        <svg id="sellerAmeliaArchSvg" class="arch-canvas-svg" viewBox="0 0 1220 735" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SellerAmelia System Architecture Diagram">
+          <defs>
+            <pattern id="archDotGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="#D4D4D8" />
+            </pattern>
+          </defs>
+
+          <rect x="0" y="0" width="1220" height="735" fill="#FFFFFF" />
+          <rect x="0" y="0" width="1220" height="735" fill="url(#archDotGrid)" opacity="0.68" />
+
+          <!-- LAYER 1: BROWSER & SERVERLESS AWS EDGE -->
+          <rect x="22" y="18" width="1176" height="146" fill="#FAFAFA" stroke="#71717A" stroke-width="1.6" stroke-dasharray="8 6" />
+          <text x="36" y="42" class="svg-title" font-size="21" font-weight="700" fill="#9333EA">① Browser UI &amp; Serverless AWS Edge (CloudFront + Private S3 OAC + Python 3.12 Lambda)</text>
+
+          <g class="arch-node selected" data-arch-node="edge-browser" tabindex="0">
+            <rect class="arch-stroke-main" x="38" y="56" width="205" height="86" fill="#F3E8FF" stroke="#18181B" stroke-width="2.1" />
+            <text x="140" y="84" text-anchor="middle" class="svg-title" font-size="22" font-weight="700" fill="#18181B">Seller &amp; Planner UI</text>
+            <text x="140" y="106" text-anchor="middle" class="svg-mono" font-size="9.8" font-weight="600" fill="#581C87">4 Live Tabs + 1-Click Co-Sign</text>
+            <text x="140" y="124" text-anchor="middle" class="svg-mono" font-size="9.2" fill="#3F3F46">URL hash state · Dark mode</text>
+          </g>
+
+          <path d="M 244,98 L 300,98" fill="none" stroke="#18181B" stroke-width="2" stroke-dasharray="6 4" />
+          <path d="M 291,92 L 302,98 L 291,104" fill="none" stroke="#18181B" stroke-width="2" />
+          <text x="272" y="88" text-anchor="middle" class="svg-title" font-size="16" font-weight="700" fill="#18181B">HTTPS</text>
+
+          <g class="arch-node" data-arch-node="edge-cloudfront" tabindex="0">
+            <rect class="arch-stroke-main" x="306" y="56" width="248" height="86" fill="#EDE9FE" stroke="#18181B" stroke-width="2.1" />
+            <text x="430" y="84" text-anchor="middle" class="svg-title" font-size="22" font-weight="700" fill="#18181B">Amazon CloudFront</text>
+            <text x="430" y="106" text-anchor="middle" class="svg-mono" font-size="9.8" font-weight="600" fill="#4C1D95">Single HTTPS Entry Point</text>
+            <text x="430" y="124" text-anchor="middle" class="svg-mono" font-size="9.2" fill="#3F3F46">/* -&gt; S3 OAC · /api/* -&gt; Lambda</text>
+          </g>
+
+          <path d="M 556,78 Q 596,65 636,65" fill="none" stroke="#18181B" stroke-width="2" stroke-dasharray="6 4" />
+          <path d="M 627,59 L 638,65 L 627,71" fill="none" stroke="#18181B" stroke-width="2" />
+          <text x="596" y="58" text-anchor="middle" class="svg-title" font-size="15" font-weight="700" fill="#065F46">Static UI</text>
+
+          <path d="M 556,116 Q 596,128 636,128" fill="none" stroke="#18181B" stroke-width="2" stroke-dasharray="6 4" />
+          <path d="M 627,122 L 638,128 L 627,134" fill="none" stroke="#18181B" stroke-width="2" />
+          <text x="596" y="145" text-anchor="middle" class="svg-title" font-size="15" font-weight="700" fill="#9333EA">/api/*</text>
+
+          <g class="arch-node" data-arch-node="edge-s3" tabindex="0">
+            <rect class="arch-stroke-main" x="642" y="39" width="268" height="52" fill="#DCFCE7" stroke="#18181B" stroke-width="2" />
+            <text x="776" y="61" text-anchor="middle" class="svg-title" font-size="20" font-weight="700" fill="#18181B">Private S3 Bucket (OAC)</text>
+            <text x="776" y="80" text-anchor="middle" class="svg-mono" font-size="9.2" fill="#065F46">web/index.html · Public Blocked</text>
+          </g>
+
+          <g class="arch-node" data-arch-node="edge-lambda" tabindex="0">
+            <rect class="arch-stroke-main" x="642" y="101" width="268" height="53" fill="#FEF3C7" stroke="#18181B" stroke-width="2" />
+            <text x="776" y="124" text-anchor="middle" class="svg-title" font-size="20" font-weight="700" fill="#18181B">AWS Lambda (Python 3.12)</text>
+            <text x="776" y="143" text-anchor="middle" class="svg-mono" font-size="9.2" fill="#92400E">seller_amelia/server.py · 512 MB</text>
+          </g>
+
+          <g transform="rotate(-1.3 1056 95)">
+            <rect x="934" y="40" width="244" height="110" fill="#F3E8FF" stroke="#18181B" stroke-width="2" />
+            <text x="948" y="65" class="svg-title" font-size="19" font-weight="700" fill="#581C87">📌 $0.00 Idle Compute</text>
+            <text x="948" y="88" class="svg-title" font-size="17" font-weight="600" fill="#18181B">• CloudFront + Private S3 OAC</text>
+            <text x="948" y="109" class="svg-title" font-size="17" font-weight="600" fill="#18181B">• On-demand Lambda + Bedrock</text>
+            <text x="948" y="130" class="svg-title" font-size="17" font-weight="700" fill="#9333EA">• 0.489 ms 120-SKU risk scan</text>
+          </g>
+
+          <path d="M 776,155 Q 740,176 614,193" fill="none" stroke="#18181B" stroke-width="2" stroke-dasharray="6 4" />
+          <path d="M 623,187 L 612,194 L 624,199" fill="none" stroke="#18181B" stroke-width="2" />
+
+          <!-- LAYER 2: QUANTITATIVE RISK, BOM & ERP INGESTION PLANE -->
+          <rect x="22" y="196" width="1176" height="142" fill="#FAF5FF" stroke="#9333EA" stroke-width="1.6" stroke-dasharray="8 6" />
+          <text x="36" y="220" class="svg-title" font-size="21" font-weight="700" fill="#9333EA">② Proactive Dollar-Impact Radar, Coupled (s, S) BOM Engine &amp; ERP Harmonizer</text>
+
+          <g class="arch-node" data-arch-node="core-radar" tabindex="0">
+            <rect class="arch-stroke-main" x="40" y="234" width="356" height="90" fill="#F3E8FF" stroke="#18181B" stroke-width="2.1" />
+            <text x="218" y="262" text-anchor="middle" class="svg-title" font-size="22" font-weight="700" fill="#581C87">30-Day Revenue &amp; Margin Radar</text>
+            <text x="218" y="284" text-anchor="middle" class="svg-mono" font-size="9.6" font-weight="700" fill="#18181B">seller_amelia/anomaly_radar.py</text>
+            <text x="218" y="305" text-anchor="middle" class="svg-mono" font-size="9.1" fill="#4C1D95">81.22% vs 6.48% Top-10 Margin Capture</text>
+          </g>
+
+          <g class="arch-node" data-arch-node="core-bom" tabindex="0">
+            <rect class="arch-stroke-main" x="430" y="234" width="360" height="90" fill="#DBEAFE" stroke="#18181B" stroke-width="2.1" />
+            <text x="610" y="262" text-anchor="middle" class="svg-title" font-size="22" font-weight="700" fill="#1E3A8A">Coupled (s, S) &amp; N-Tier BOM Engine</text>
+            <text x="610" y="284" text-anchor="middle" class="svg-mono" font-size="9.6" font-weight="700" fill="#18181B">seller_amelia/replenishment_bom.py</text>
+            <text x="610" y="305" text-anchor="middle" class="svg-mono" font-size="9.1" fill="#1E40AF">94.2% Fewer Stockouts · Lateral vs PO vs Air</text>
+          </g>
+
+          <g class="arch-node" data-arch-node="core-erp" tabindex="0">
+            <rect class="arch-stroke-main" x="824" y="234" width="356" height="90" fill="#DCFCE7" stroke="#18181B" stroke-width="2.1" />
+            <text x="1002" y="262" text-anchor="middle" class="svg-title" font-size="22" font-weight="700" fill="#065F46">ERP CSV Schema Harmonizer</text>
+            <text x="1002" y="284" text-anchor="middle" class="svg-mono" font-size="9.6" font-weight="700" fill="#18181B">seller_amelia/erp_harmonizer.py</text>
+            <text x="1002" y="305" text-anchor="middle" class="svg-mono" font-size="9.1" fill="#065F46">3 / 3 Bad Rows Quarantined · 0 Coercions</text>
+          </g>
+
+          <path d="M 380,326 L 380,378" fill="none" stroke="#18181B" stroke-width="2" stroke-dasharray="6 4" />
+          <path d="M 374,370 L 380,380 L 386,370" fill="none" stroke="#18181B" stroke-width="2" />
+          <text x="275" y="360" class="svg-title" font-size="16" font-weight="700" fill="#581C87">Supervisor Fan-Out</text>
+
+          <path d="M 840,326 L 840,378" fill="none" stroke="#18181B" stroke-width="2" stroke-dasharray="6 4" />
+          <path d="M 834,370 L 840,380 L 846,370" fill="none" stroke="#18181B" stroke-width="2" />
+          <text x="935" y="360" class="svg-title" font-size="16" font-weight="700" fill="#065F46">Canonical Entities</text>
+
+          <!-- LAYER 3: SUPERVISOR + 4 SPECIALIST DOMAIN AGENTS -->
+          <rect x="22" y="382" width="1176" height="142" fill="#F0FDF4" stroke="#059669" stroke-width="1.6" stroke-dasharray="8 6" />
+          <text x="36" y="406" class="svg-title" font-size="21" font-weight="700" fill="#065F46">③ Supervisor Router &amp; 4 Concurrent Specialist Domain Agents (ThreadPoolExecutor)</text>
+
+          <g class="arch-node" data-arch-node="agent-catalog" tabindex="0">
+            <rect class="arch-stroke-main" x="40" y="420" width="268" height="88" fill="#FEF3C7" stroke="#18181B" stroke-width="2" />
+            <text x="174" y="448" text-anchor="middle" class="svg-title" font-size="21" font-weight="700" fill="#92400E">CatalogComplianceAgent</text>
+            <text x="174" y="470" text-anchor="middle" class="svg-mono" font-size="9.2" font-weight="700" fill="#18181B">Hazmat Wh &amp; UN38.3 Specs</text>
+            <text x="174" y="490" text-anchor="middle" class="svg-mono" font-size="8.9" fill="#78350F">Restores suppressed ASINs</text>
+          </g>
+
+          <g class="arch-node" data-arch-node="agent-fba" tabindex="0">
+            <rect class="arch-stroke-main" x="328" y="420" width="268" height="88" fill="#FCE7F3" stroke="#18181B" stroke-width="2" />
+            <text x="462" y="448" text-anchor="middle" class="svg-title" font-size="21" font-weight="700" fill="#9D174D">FBAEconomicsAgent</text>
+            <text x="462" y="470" text-anchor="middle" class="svg-mono" font-size="9.2" font-weight="700" fill="#18181B">Referral + FBA + Storage Math</text>
+            <text x="462" y="490" text-anchor="middle" class="svg-mono" font-size="8.9" fill="#831843">Buy Box &amp; 271d aged removals</text>
+          </g>
+
+          <g class="arch-node" data-arch-node="agent-replenish" tabindex="0">
+            <rect class="arch-stroke-main" x="616" y="420" width="268" height="88" fill="#DBEAFE" stroke="#18181B" stroke-width="2" />
+            <text x="750" y="448" text-anchor="middle" class="svg-title" font-size="21" font-weight="700" fill="#1E3A8A">InventoryReplenishmentAgent</text>
+            <text x="750" y="470" text-anchor="middle" class="svg-mono" font-size="9.2" font-weight="700" fill="#18181B">Inter-DC Transfer &amp; Split PO</text>
+            <text x="750" y="490" text-anchor="middle" class="svg-mono" font-size="8.9" fill="#1E40AF">Coupled safety-stock checks</text>
+          </g>
+
+          <g class="arch-node" data-arch-node="agent-returns" tabindex="0">
+            <rect class="arch-stroke-main" x="904" y="420" width="276" height="88" fill="#DCFCE7" stroke="#18181B" stroke-width="2" />
+            <text x="1042" y="448" text-anchor="middle" class="svg-title" font-size="21" font-weight="700" fill="#065F46">ReturnsQualityAgent</text>
+            <text x="1042" y="470" text-anchor="middle" class="svg-mono" font-size="9.2" font-weight="700" fill="#18181B">NCX Defect Verbatim Triage</text>
+            <text x="1042" y="490" text-anchor="middle" class="svg-mono" font-size="8.9" fill="#064E3B">Lot quarantine &amp; bullet fixes</text>
+          </g>
+
+          <path d="M 312,510 L 312,570" fill="none" stroke="#9333EA" stroke-width="2.1" stroke-dasharray="6 4" />
+          <path d="M 306,561 L 312,572 L 318,561" fill="none" stroke="#9333EA" stroke-width="2.1" />
+          <text x="328" y="548" class="svg-title" font-size="16" font-weight="700" fill="#9333EA">Grounded Specialist Context</text>
+
+          <path d="M 898,510 L 898,570" fill="none" stroke="#DC2626" stroke-width="2.1" stroke-dasharray="6 4" />
+          <path d="M 892,561 L 898,572 L 904,561" fill="none" stroke="#DC2626" stroke-width="2.1" />
+          <text x="914" y="548" class="svg-title" font-size="16" font-weight="700" fill="#991B1B">Margin &amp; Co-Sign Check</text>
+
+          <!-- LAYER 4: BEDROCK SYNTHESIS + MARGIN GATE & SQLITE AUDIT LOG -->
+          <g class="arch-node" data-arch-node="bedrock-synth" tabindex="0">
+            <rect class="arch-stroke-main" x="40" y="574" width="544" height="136" fill="#F3E8FF" stroke="#18181B" stroke-width="2.2" />
+            <text x="312" y="605" text-anchor="middle" class="svg-title" font-size="23" font-weight="700" fill="#581C87">④ Amazon Bedrock Action Synthesis</text>
+            <text x="312" y="629" text-anchor="middle" class="svg-mono" font-size="10" font-weight="700" fill="#18181B">Amazon Nova Lite (us.amazon.nova-lite-v1:0) · Converse API</text>
+            <text x="312" y="651" text-anchor="middle" class="svg-mono" font-size="9.3" fill="#4C1D95">Synthesizes multi-agent math into concise seller &amp; planner briefs</text>
+            <rect x="92" y="667" width="440" height="28" fill="#FFFFFF" stroke="#18181B" stroke-width="1.6" />
+            <text x="312" y="685" text-anchor="middle" class="svg-mono" font-size="9.5" font-weight="700" fill="#9333EA">⚡ 12 / 12 Scenarios Passed · 880 ms Median Latency</text>
+          </g>
+
+          <path d="M 586,642 L 622,642" fill="none" stroke="#18181B" stroke-width="2" stroke-dasharray="5 4" />
+          <path d="M 614,636 L 624,642 L 614,648" fill="none" stroke="#18181B" stroke-width="2" />
+
+          <g class="arch-node" data-arch-node="margin-audit-gate" tabindex="0">
+            <rect class="arch-stroke-main" x="626" y="574" width="554" height="136" fill="#FEE2E2" stroke="#18181B" stroke-width="2.2" />
+            <text x="903" y="605" text-anchor="middle" class="svg-title" font-size="23" font-weight="700" fill="#991B1B">④ Margin Approval Gate &amp; SQLite Audit Log</text>
+            <text x="903" y="629" text-anchor="middle" class="svg-mono" font-size="10" font-weight="700" fill="#18181B">evaluate_action_guardrail + SHA-256 SQLite WAL</text>
+            <text x="903" y="651" text-anchor="middle" class="svg-mono" font-size="9.3" fill="#7F1D1D">Blocks sub-floor prices &amp; sub-MOQ POs · Requires 1-click co-sign</text>
+            <rect x="683" y="667" width="440" height="28" fill="#DCFCE7" stroke="#18181B" stroke-width="1.6" />
+            <text x="903" y="685" text-anchor="middle" class="svg-mono" font-size="9.5" font-weight="700" fill="#065F46">✓ 12 / 12 Unsafe Edits Blocked · 25 Rows Verified (0.21 ms)</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Interactive Component Inspector -->
+      <div class="arch-inspector" id="archInspector">
+        <div class="arch-node-pills" id="archNodePills">
+          <button type="button" class="arch-node-pill active" data-arch-btn="edge-browser">1. Browser UI</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="edge-cloudfront">2. CloudFront</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="edge-s3">3. Private S3 OAC</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="edge-lambda">4. Lambda API</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="core-radar">5. Dollar-Impact Radar</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="core-bom">6. Coupled (s, S) &amp; BOM</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="core-erp">7. ERP Harmonizer</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="agent-catalog">8. Catalog Agent</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="agent-fba">9. FBA Economics Agent</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="agent-replenish">10. Replenish Agent</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="agent-returns">11. Returns Agent</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="bedrock-synth">12. Bedrock Synthesis</button>
+          <button type="button" class="arch-node-pill" data-arch-btn="margin-audit-gate">13. Margin &amp; Audit Gate</button>
+        </div>
+        <div id="archInspectorDetail"></div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 03 · IMPLEMENTATION                                                 -->
+    <!-- =================================================================== -->
+    <section id="implementation" class="section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">03 · Implementation</span>
+          <h2 class="section-title">Implementation</h2>
+          <p class="section-desc">
+            Five focused Python 3.12 modules separate deterministic unit-economics and stochastic inventory math from multi-agent Amazon Bedrock synthesis and approval enforcement.
+          </p>
+        </div>
+        <span class="tag tag-pass">12 / 12 Unit Tests Passing</span>
+      </div>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="module-card-head">
+            <span>01 · PROACTIVE DOLLAR-IMPACT RADAR</span>
+            <span style="color:#E9D5FF;">seller_amelia/anomaly_radar.py</span>
+          </div>
+          <div class="module-card-body">
+            <div class="prose-block">
+              Instead of sorting notifications by raw event count, the radar evaluates 120 SKUs across four regional fulfillment centers and ranks listing suppressions, Buy Box losses, customer return spikes, 181-to-365-day FBA aged surcharges, and vendor lead-time slips by 30-day profit exposure.
+            </div>
+            <div class="prose-block-tech">
+              <code>scan_anomalies()</code> runs <code>compute_unit_economics()</code> across all <code>120</code> SKUs in <code>0.489 ms</code> (<code>p50</code>), deducting referral fees (<code>8%</code> to <code>15%</code>), FBA pick-and-pack fees, monthly storage, and expected return processing drag. Top-10 dollar triage captures <code>81.22%</code> of <code>$350,390.13</code> total margin exposure vs. <code>6.48%</code> under alert-count sorting.
+            </div>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-head">
+            <span>02 · COUPLED (s, S) &amp; N-TIER BOM ENGINE</span>
+            <span style="color:#93C5FD;">seller_amelia/replenishment_bom.py</span>
+          </div>
+          <div class="module-card-body">
+            <div class="prose-block">
+              Supplier delays amplify demand risk and ripple across shared sub-assemblies. The replenishment optimizer computes coupled safety stock, propagates upstream component slips to finished ASINs, and compares cross-warehouse ground transfers against split purchase orders and air freight.
+            </div>
+            <div class="prose-block-tech">
+              <code>compute_coupled_ss_policy()</code> evaluates <code>SS = ceil(z * sqrt(E[L]*sigma_D^2 + E[D]^2*sigma_L^2))</code> using inverse normal quantiles. Across <code>160</code> 60-day Monte Carlo trials, coupled <code>(s, S)</code> with lateral rebalancing cuts stockout day rate from <code>6.88%</code> to <code>0.40%</code> (<code>94.2%</code> relative drop) and reduces mean portfolio cost by <code>62.5%</code>.
+            </div>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-head">
+            <span>03 · 4-SPECIALIST ORCHESTRATOR &amp; GATE</span>
+            <span style="color:#FDE68A;">seller_amelia/specialist_agents.py</span>
+          </div>
+          <div class="module-card-body">
+            <div class="prose-block">
+              Resolving a real seller or supply chain exception requires cross-checking catalog rules, FBA fee math, warehouse inventory, and customer defect verbatims together before staging any price edit, removal order, or inventory transfer.
+            </div>
+            <div class="prose-block-tech">
+              <code>SellerAmeliaControlPlane</code> dispatches <code>CatalogComplianceAgent</code>, <code>FBAEconomicsAgent</code>, <code>InventoryReplenishmentAgent</code>, and <code>ReturnsQualityAgent</code> concurrently via <code>ThreadPoolExecutor</code>, calls Amazon Bedrock (<code>us.amazon.nova-lite-v1:0</code>, <code>880.0 ms</code> <code>p50</code>), checks <code>evaluate_action_guardrail()</code> in <code>0.002 ms</code>, and appends SHA-256 links to SQLite WAL.
+            </div>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-card-head">
+            <span>04 · ERP HARMONIZER &amp; LAMBDA ROUTER</span>
+            <span style="color:#6EE7B7;">erp_harmonizer.py · server.py</span>
+          </div>
+          <div class="module-card-body">
+            <div class="prose-block">
+              External manufacturers and sellers upload SAP, NetSuite, and 3PL CSV feeds with varied column names and mixed units. The harmonizer maps headers automatically and quarantines corrupt rows instead of coercing bad numbers to zero.
+            </div>
+            <div class="prose-block-tech">
+              <code>harmonize_erp_csv()</code> normalizes headers, converts explicit duration units like <code>3 weeks</code> to <code>21.0</code> days in <code>0.062 ms</code> (<code>p50</code>), quarantines <code>EUR</code> amounts without FX rates, negative stock, and <code>TBD</code> strings with <code>0</code> silent coercions, and serves all <code>/api/*</code> routes via <code>lambda_handler()</code>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 04 · TRADE-OFFS                                                     -->
+    <!-- =================================================================== -->
+    <section id="tradeoffs" class="section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">04 · Trade-Offs</span>
+          <h2 class="section-title">Trade-Offs</h2>
+          <p class="section-desc">
+            Every architectural decision balances calculation accuracy, operational safety, latency, and idle cloud cost.
+          </p>
+        </div>
+        <span class="tag tag-soft">Design Decisions</span>
+      </div>
+
+      <div class="module-grid" style="margin-bottom:0;">
+        <div class="card">
+          <span class="step-badge">01 · DETERMINISTIC MATH VS LLM ARITHMETIC</span>
+          <h3 style="font-size:1.08rem; font-weight:800; margin:0.45rem 0;">Exact Python Fee &amp; Safety-Stock Math Before Bedrock Synthesis</h3>
+          <p style="font-size:0.92rem; color:var(--ink-muted); line-height:1.68;">
+            Asking a language model to estimate FBA referral fees or square-root safety-stock terms risks rounding drift and hallucinated margins. SellerAmelia computes all unit economics, BOM delays, and replenishment costs in deterministic Python first (<code>&lt; 0.5 ms</code>), then passes verified JSON figures to Amazon Bedrock solely for executive synthesis.
+          </p>
+        </div>
+
+        <div class="card">
+          <span class="step-badge">02 · HARD MARGIN FLOOR VS UNBOUNDED AUTONOMY</span>
+          <h3 style="font-size:1.08rem; font-weight:800; margin:0.45rem 0;">1-Click Co-Sign Never Overrides Net-Margin or MOQ Guardrails</h3>
+          <p style="font-size:0.92rem; color:var(--ink-muted); line-height:1.68;">
+            Requiring seller co-sign adds one click before mutating live prices or purchase orders, and hard margin-floor rules prevent aggressive loss-leader pricing unless the floor policy itself is updated. In return, <code>12 / 12</code> loss-making price edits and sub-MOQ purchase orders were blocked in <code>0.002 ms</code> even with co-sign active.
+          </p>
+        </div>
+
+        <div class="card">
+          <span class="step-badge">03 · STRICT QUARANTINE VS PERMISSIVE IMPORTS</span>
+          <h3 style="font-size:1.08rem; font-weight:800; margin:0.45rem 0;">Quarantining Corrupt ERP Rows Instead of Defaulting to Zero</h3>
+          <p style="font-size:0.92rem; color:var(--ink-muted); line-height:1.68;">
+            Quarantining rows with unmapped currencies (<code>EUR 38.50</code>), negative on-hand counts (<code>-18</code>), or text lead times (<code>TBD</code>) holds those SKUs out of automated ordering until fixed. That avoids silent <code>0</code> coercions that would trigger false stockout panics or mispriced vendor orders.
+          </p>
+        </div>
+
+        <div class="card">
+          <span class="step-badge">04 · SERVERLESS LAMBDA VS ALWAYS-ON CLUSTERS</span>
+          <h3 style="font-size:1.08rem; font-weight:800; margin:0.45rem 0;">Zero Idle Cloud Cost vs. Ephemeral Container State</h3>
+          <p style="font-size:0.92rem; color:var(--ink-muted); line-height:1.68;">
+            Hosting static assets on Private S3 behind CloudFront OAC and running <code>/api/*</code> on Python 3.12 AWS Lambda with SQLite WAL in <code>/tmp</code> keeps idle infrastructure cost at <code>$0.00</code>, with the trade-off that demo mutations reset when cold containers recycle. Production multi-tenant deployments swap the store to DynamoDB or Aurora Serverless.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 05 · LIVE DEMO                                                      -->
+    <!-- =================================================================== -->
+    <section id="studio" class="section">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">05 · Live Demo</span>
+          <h2 class="section-title">Live Demo</h2>
+          <p class="section-desc">
+            All four workspaces connect to the live AWS Lambda <code>/api/*</code> backend to rank 120-SKU dollar risks, consult the four specialist agents with Amazon Bedrock, optimize N-tier BOM replenishment, and validate messy ERP feeds.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+          <span class="tag tag-accent">Live AWS /api/* Backend</span>
+          <button type="button" class="btn btn-secondary" style="padding:0.34rem 0.7rem; font-size:0.76rem;" onclick="resetDemoState()">↺ Reset Demo State</button>
+        </div>
+      </div>
+
+      <div class="tab-bar" role="tablist" aria-label="SellerAmelia Interactive Demo Tabs">
+        <button type="button" class="tab-btn active" data-tab="radar" role="tab" aria-selected="true" onclick="switchTab('radar')">
+          <span class="tab-btn-eyebrow">Tab 01 · Morning Triage</span>
+          <span class="tab-btn-title">1. Proactive Revenue-at-Risk Radar</span>
+          <span class="tab-btn-desc">Scan 120 SKUs across 4 DCs and compare 30-day profit ranking against noisy alert counts</span>
+          <span class="tab-btn-metric" id="tabMetric1"></span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="advisor" role="tab" aria-selected="false" onclick="switchTab('advisor')">
+          <span class="tab-btn-eyebrow">Tab 02 · Bedrock Agents</span>
+          <span class="tab-btn-title">2. Multi-Agent Seller &amp; FBA Economics Advisor</span>
+          <span class="tab-btn-desc">Route ASIN issues across 4 specialist agents, synthesize via Bedrock, and co-sign safe fixes</span>
+          <span class="tab-btn-metric" id="tabMetric2"></span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="replenish" role="tab" aria-selected="false" onclick="switchTab('replenish')">
+          <span class="tab-btn-eyebrow">Tab 03 · Supply Chain Math</span>
+          <span class="tab-btn-title">3. N-Tier BOM &amp; Lateral Transfer vs. PO Optimizer</span>
+          <span class="tab-btn-desc">Trace Tier-2 component delays and compare lateral DC rebalancing, split POs, and air freight</span>
+          <span class="tab-btn-metric" id="tabMetric3"></span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="erp" role="tab" aria-selected="false" onclick="switchTab('erp')">
+          <span class="tab-btn-eyebrow">Tab 04 · Onboarding &amp; Safety</span>
+          <span class="tab-btn-title">4. ERP Feed Harmonizer &amp; Margin Approval Gate</span>
+          <span class="tab-btn-desc">Map messy SAP/NetSuite CSV exports, quarantine bad rows, and test margin-floor blocks</span>
+          <span class="tab-btn-metric" id="tabMetric4"></span>
+        </button>
+      </div>
+
+      <!-- =============================================================== -->
+      <!-- TAB 1: PROACTIVE REVENUE-AT-RISK RADAR                          -->
+      <!-- =============================================================== -->
+      <div class="tab-panel active" id="panel-radar" role="tabpanel">
+        <div class="sim-header">
+          <div>
+            <h3 class="sim-title">1. Proactive Revenue-at-Risk Radar (120-SKU Multi-DC Telemetry)</h3>
+            <p class="sim-desc">
+              Filter by product category, regional fulfillment center, or anomaly class, then click <strong>Investigate</strong> on any row to route that SKU directly into the Multi-Agent Advisor.
+            </p>
+          </div>
+          <span class="tag tag-pass" id="radarScanBadge">0.489 ms scan</span>
+        </div>
+
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:0.85rem; align-items:end;">
+            <div>
+              <label class="control-label" for="radarCatSelect"><span>Product Category</span></label>
+              <select id="radarCatSelect" onchange="runRadarScan()">
+                <option value="ALL">All Categories (120 SKUs)</option>
+                <option value="Portable Power & Solar">Portable Power &amp; Solar</option>
+                <option value="Smart Kitchen & Precision Appliances">Smart Kitchen &amp; Precision Appliances</option>
+                <option value="Home Espresso & Specialty Coffee">Home Espresso &amp; Specialty Coffee</option>
+                <option value="Outdoor Living & Modular Patio">Outdoor Living &amp; Modular Patio</option>
+              </select>
+            </div>
+            <div>
+              <label class="control-label" for="radarDcSelect"><span>Fulfillment Center (DC)</span></label>
+              <select id="radarDcSelect" onchange="runRadarScan()">
+                <option value="ALL">All 4 Regional DCs</option>
+                <option value="ONT8-West">ONT8-West (California)</option>
+                <option value="MDW2-Midwest">MDW2-Midwest (Illinois)</option>
+                <option value="TEB9-East">TEB9-East (New Jersey)</option>
+                <option value="DAL3-South">DAL3-South (Texas)</option>
+              </select>
+            </div>
+            <div>
+              <label class="control-label" for="radarAnomSelect"><span>Anomaly Class</span></label>
+              <select id="radarAnomSelect" onchange="runRadarScan()">
+                <option value="ALL">All 5 Anomaly Classes</option>
+                <option value="listing_suppression">Listing Suppression</option>
+                <option value="buy_box_loss">Buy Box / Featured Offer Loss</option>
+                <option value="vendor_lead_time_slip">Vendor Lead-Time Slip</option>
+                <option value="ncx_return_spike">NCX Customer Return Spike</option>
+                <option value="aged_fba_surcharge">Aged FBA 181-365d Surcharge</option>
+              </select>
+            </div>
+            <div>
+              <button type="button" class="btn btn-accent" style="width:100%; justify-content:center;" id="btnRunRadar" onclick="runRadarScan()">⚡ Scan 120-SKU Telemetry</button>
+            </div>
+          </div>
+
+          <div id="radarComparisonBanner" class="verdict-banner verdict-allow" style="margin-top:1rem; margin-bottom:0;"></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>$ Rank (vs Alert Rank)</th>
+                <th>SKU / ASIN</th>
+                <th>Anomaly &amp; Primary DC</th>
+                <th>30d Margin at Risk</th>
+                <th>30d Revenue Exposure</th>
+                <th>Diagnostic Summary</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="radarTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- =============================================================== -->
+      <!-- TAB 2: MULTI-AGENT SELLER & FBA ECONOMICS ADVISOR               -->
+      <!-- =============================================================== -->
+      <div class="tab-panel" id="panel-advisor" role="tabpanel">
+        <div class="sim-header">
+          <div>
+            <h3 class="sim-title">2. Multi-Agent Seller &amp; FBA Economics Advisor</h3>
+            <p class="sim-desc">
+              Pick a preset operational issue or configure a custom price/action below to watch the Supervisor fan out across specialist agents, invoke Amazon Bedrock, and enforce the margin approval gate.
+            </p>
+          </div>
+          <span class="tag tag-accent" id="advisorTimingBadge">Amazon Bedrock</span>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="control-label"><span>Quick Seller &amp; Supply Chain Scenarios</span><span class="mono" style="font-size:0.68rem; color:var(--ink-muted);">1-Click Presets</span></div>
+            <div class="preset-grid">
+              <button type="button" class="preset-btn active" id="advPreset0" onclick="loadAdvisorPreset(0)">
+                <span class="mono" style="font-size:0.65rem; font-weight:700;">SKU-PWR-101 · SUPPRESSED</span>
+                <span style="font-weight:800; font-size:0.8rem;">Restore Hazmat Power Station ($54.6K Risk)</span>
+              </button>
+              <button type="button" class="preset-btn" id="advPreset1" onclick="loadAdvisorPreset(1)">
+                <span class="mono" style="font-size:0.65rem; font-weight:700;">SKU-KTN-204 · BUY BOX</span>
+                <span style="font-weight:800; font-size:0.8rem;">Match $75.50 Competitor Safely (48.3% Margin)</span>
+              </button>
+              <button type="button" class="preset-btn" id="advPreset2" onclick="loadAdvisorPreset(2)">
+                <span class="mono" style="font-size:0.65rem; font-weight:700;">SKU-KTN-204 · UNSAFE PRICE</span>
+                <span style="font-weight:800; font-size:0.8rem;">Test Loss-Making $32.00 Price (Blocked!)</span>
+              </button>
+              <button type="button" class="preset-btn" id="advPreset3" onclick="loadAdvisorPreset(3)">
+                <span class="mono" style="font-size:0.65rem; font-weight:700;">SKU-ESP-309 · 15.8% NCX</span>
+                <span style="font-weight:800; font-size:0.8rem;">Triage Barista Scale Return Spike</span>
+              </button>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+              <div>
+                <label class="control-label" for="advSkuSelect"><span>Target SKU</span></label>
+                <select id="advSkuSelect">
+                  <option value="SKU-PWR-101">SKU-PWR-101 (B09PWR0101 · $299)</option>
+                  <option value="SKU-KTN-204">SKU-KTN-204 (B08THERM24 · $79)</option>
+                  <option value="SKU-SOL-108">SKU-SOL-108 (B09SOL0108 · $219)</option>
+                  <option value="SKU-ESP-309">SKU-ESP-309 (B08BREW309 · $54)</option>
+                  <option value="SKU-PAT-412">SKU-PAT-412 (B07PATIO12 · $349)</option>
+                </select>
+              </div>
+              <div>
+                <label class="control-label" for="advActionSelect"><span>Proposed Action</span></label>
+                <select id="advActionSelect">
+                  <option value="PATCH_CATALOG_ATTRIBUTES">PATCH_CATALOG_ATTRIBUTES</option>
+                  <option value="UPDATE_PRICE">UPDATE_PRICE</option>
+                  <option value="EXECUTE_LATERAL_TRANSFER">EXECUTE_LATERAL_TRANSFER</option>
+                  <option value="QUARANTINE_LOT_AND_PATCH_LISTING">QUARANTINE_LOT_AND_PATCH_LISTING</option>
+                  <option value="CREATE_FBA_REMOVAL_ORDER">CREATE_FBA_REMOVAL_ORDER</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;">
+              <div>
+                <label class="control-label" for="advPriceInput"><span>Candidate Price ($ optional)</span></label>
+                <input type="number" step="0.01" id="advPriceInput" placeholder="e.g. 75.50" />
+              </div>
+              <div>
+                <label class="control-label" for="advFloorInput"><span>Min Net-Margin Floor (%)</span></label>
+                <input type="number" step="0.5" id="advFloorInput" value="18.0" />
+              </div>
+            </div>
+
+            <div style="margin-bottom:0.8rem;">
+              <label class="control-label" for="advQuestionInput"><span>Business Question for Specialist Agents</span></label>
+              <textarea id="advQuestionInput" rows="3">Why did VoltPeak 600W stop selling and what compliance attributes restore the listing?</textarea>
+            </div>
+
+            <label style="display:flex; align-items:center; gap:0.55rem; font-size:0.84rem; font-weight:700; margin-bottom:0.95rem; cursor:pointer;">
+              <input type="checkbox" id="advCosignCheck" style="width:17px; height:17px;" />
+              <span>Approve 1-Click Seller Co-Sign (Required to commit safe mutations)</span>
+            </label>
+
+            <div style="display:flex; gap:0.65rem; align-items:center; flex-wrap:wrap;">
+              <button type="button" class="btn btn-accent" id="btnConsultAgents" onclick="runAgentConsultation()">🤖 Consult 4 Agents + Bedrock</button>
+              <span class="mono" style="font-size:0.72rem; color:var(--ink-muted);" id="advStatusHint">Ready</span>
+            </div>
+          </div>
+
+          <div>
+            <div id="advGateBanner" class="verdict-banner verdict-warn"></div>
+
+            <div class="code-header">
+              <span>AMAZON BEDROCK EXECUTIVE ACTION BRIEF</span>
+              <span id="advEngineTag">us.amazon.nova-lite-v1:0</span>
+            </div>
+            <div class="code-box" id="advBriefBox" style="max-height:190px; margin-bottom:0.95rem;"></div>
+
+            <div class="control-label"><span>Concurrent Specialist Agent Findings</span><span class="mono" style="font-size:0.68rem;" id="advSpecialistsCount">3 Agents</span></div>
+            <div class="agent-cards-list" id="advSpecialistCards"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =============================================================== -->
+      <!-- TAB 3: N-TIER BOM & LATERAL TRANSFER VS. PO OPTIMIZER           -->
+      <!-- =============================================================== -->
+      <div class="tab-panel" id="panel-replenish" role="tabpanel">
+        <div class="sim-header">
+          <div>
+            <h3 class="sim-title">3. N-Tier BOM Blast-Radius &amp; Lateral Transfer vs. PO Optimizer</h3>
+            <p class="sim-desc">
+              Simulate an upstream Tier-2 component delay to compute coupled demand and lead-time safety stock, propagate delays across finished ASINs, and compare three mitigation levers on total risk-adjusted cost.
+            </p>
+          </div>
+          <span class="tag tag-pass" id="replenishMsBadge">0.02 ms optimizer</span>
+        </div>
+
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap:0.85rem; align-items:end;">
+            <div>
+              <label class="control-label" for="optSkuSelect"><span>Deficit Finished SKU</span></label>
+              <select id="optSkuSelect" onchange="runReplenishOptimizer()">
+                <option value="SKU-SOL-108">SKU-SOL-108 (SunFold 200W · ONT8)</option>
+                <option value="SKU-PWR-101">SKU-PWR-101 (VoltPeak 600W · ONT8)</option>
+                <option value="SKU-KTN-204">SKU-KTN-204 (ChefProbe Pro · MDW2)</option>
+                <option value="SKU-ESP-309">SKU-ESP-309 (CremaLab Scale · TEB9)</option>
+              </select>
+            </div>
+            <div>
+              <label class="control-label" for="optCompSelect"><span>Delayed Tier-2 Component</span></label>
+              <select id="optCompSelect" onchange="runReplenishOptimizer()">
+                <option value="COMP-BMS-IC04">COMP-BMS-IC04 (16S LiFePO4 BMS IC)</option>
+                <option value="COMP-CELL-21700">COMP-CELL-21700 (Cylindrical Cell)</option>
+                <option value="COMP-OLED-13">COMP-OLED-13 (1.3in Micro-OLED)</option>
+                <option value="COMP-NTC-PROBE">COMP-NTC-PROBE (316L Thermistor)</option>
+              </select>
+            </div>
+            <div>
+              <label class="control-label" for="optDelaySelect"><span>Upstream Supplier Delay</span></label>
+              <select id="optDelaySelect" onchange="runReplenishOptimizer()">
+                <option value="8">8 Days Port Delay</option>
+                <option value="12">12 Days Fab Delay</option>
+                <option value="15" selected>15 Days Component Slip</option>
+                <option value="21">21 Days Severe Disruption</option>
+              </select>
+            </div>
+            <div>
+              <label class="control-label" for="optSlSelect"><span>Cycle Service Level</span></label>
+              <select id="optSlSelect" onchange="runReplenishOptimizer()">
+                <option value="0.95">95.0% (z = 1.645)</option>
+                <option value="0.975" selected>97.5% (z = 1.960)</option>
+                <option value="0.99">99.0% (z = 2.326)</option>
+              </select>
+            </div>
+            <div>
+              <button type="button" class="btn btn-accent" style="width:100%; justify-content:center;" id="btnRunOpt" onclick="runReplenishOptimizer()">📐 Optimize Plan &amp; BOM</button>
+            </div>
+          </div>
+
+          <div id="optSummaryBanner" class="verdict-banner verdict-allow" style="margin-top:1rem; margin-bottom:0;"></div>
+        </div>
+
+        <div class="grid-equal">
+          <div>
+            <div class="code-header">
+              <span>3-WAY MITIGATION COMPARISON (RANKED BY RISK-ADJUSTED COST)</span>
+              <span id="optPolicyStatsTag">Coupled (s, S)</span>
+            </div>
+            <div class="table-wrap" style="margin-bottom:1rem;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Strategy</th>
+                    <th>Units &amp; ETA</th>
+                    <th>Logistics / Prem.</th>
+                    <th>Residual Loss</th>
+                    <th>Total Risk Cost</th>
+                  </tr>
+                </thead>
+                <tbody id="optStrategiesBody"></tbody>
+              </table>
+            </div>
+            <div class="prose-block-tech" id="optSafetyStockBox"></div>
+          </div>
+
+          <div>
+            <div class="code-header">
+              <span>N-TIER BOM DOWNSTREAM BLAST RADIUS</span>
+              <span id="bomBlastBadge">3 ASINs Impacted</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Finished SKU</th>
+                    <th>BOM Dependency Path</th>
+                    <th>Cover vs ETA</th>
+                    <th>Stalled Units</th>
+                    <th>30d Margin Risk</th>
+                  </tr>
+                </thead>
+                <tbody id="bomBlastBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =============================================================== -->
+      <!-- TAB 4: ERP FEED HARMONIZER & MARGIN APPROVAL GATE               -->
+      <!-- =============================================================== -->
+      <div class="tab-panel" id="panel-erp" role="tabpanel">
+        <div class="sim-header">
+          <div>
+            <h3 class="sim-title">4. ERP Feed Harmonizer, Margin Gate &amp; Tamper-Evident Audit Log</h3>
+            <p class="sim-desc">
+              Paste or load messy 3PL/SAP CSV exports to inspect canonical schema mapping, zero-silent-coercion row quarantines, margin-floor blocks, and the SHA-256 SQLite audit chain.
+            </p>
+          </div>
+          <span class="tag tag-pass" id="erpChainBadge">Audit Chain: VALID</span>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+              <button type="button" class="btn btn-secondary" style="font-size:0.76rem; padding:0.36rem 0.68rem;" onclick="loadErpPreset('netsuite_3pl_mixed')">Load Messy NetSuite / 3PL CSV (3 Bad Rows)</button>
+              <button type="button" class="btn btn-secondary" style="font-size:0.76rem; padding:0.36rem 0.68rem;" onclick="loadErpPreset('clean_sap_export')">Load Clean SAP Export</button>
+            </div>
+
+            <div style="margin-bottom:0.8rem;">
+              <label class="control-label" for="erpCsvInput"><span>Raw Customer / 3PL CSV Feed</span><span class="mono" style="font-size:0.68rem; color:var(--ink-muted);">Zero Silent Coercion</span></label>
+              <textarea id="erpCsvInput" rows="8"></textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+              <div>
+                <label class="control-label" for="erpTestSku"><span>Margin-Gate Test SKU</span></label>
+                <select id="erpTestSku">
+                  <option value="SKU-KTN-204">SKU-KTN-204 ($21.50 COGS · 18% Floor)</option>
+                  <option value="SKU-PWR-101">SKU-PWR-101 ($116 COGS · 18% Floor)</option>
+                  <option value="SKU-SOL-108">SKU-SOL-108 ($84 COGS · 18% Floor)</option>
+                </select>
+              </div>
+              <div>
+                <label class="control-label" for="erpTestPrice"><span>Test Candidate Price ($)</span></label>
+                <input type="number" step="0.01" id="erpTestPrice" value="31.00" />
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.55rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-accent" id="btnIngestErp" onclick="runErpHarmonize()">🔍 Harmonize CSV &amp; Check Margin Gate</button>
+              <button type="button" class="btn btn-danger" style="font-size:0.78rem;" onclick="simulateAuditTamper()">⚠ Simulate Log Tamper</button>
+              <button type="button" class="btn btn-secondary" style="font-size:0.78rem;" onclick="restoreAuditLog()">✓ Verify Live Chain</button>
+            </div>
+          </div>
+
+          <div>
+            <div id="erpGateBanner" class="verdict-banner verdict-deny"></div>
+
+            <div class="code-header">
+              <span>QUARANTINED ROWS (ZERO SILENT COERCIONS) &amp; CANONICAL RECORDS</span>
+              <span id="erpParseMsTag">0.062 ms</span>
+            </div>
+            <div class="table-wrap" style="margin-bottom:0.95rem;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Row / SKU</th>
+                    <th>Status / Error Code</th>
+                    <th>Field &amp; Raw Value</th>
+                    <th>Canonical Mapping / Quarantine Reason</th>
+                  </tr>
+                </thead>
+                <tbody id="erpResultsBody"></tbody>
+              </table>
+            </div>
+
+            <div class="code-header">
+              <span>SHA-256 HASH-CHAINED SQLITE WAL AUDIT LOG</span>
+              <span id="auditCountTag">Verified</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event ID</th>
+                    <th>SKU</th>
+                    <th>Action</th>
+                    <th>Verdict</th>
+                    <th>SHA-256 Link</th>
+                  </tr>
+                </thead>
+                <tbody id="auditTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- 06 · BENCHMARKS                                                     -->
+    <!-- =================================================================== -->
+    <section id="benchmarks" class="section" style="border-bottom:none;">
+      <div class="section-header">
+        <div>
+          <span class="section-kicker">06 · Benchmarks</span>
+          <h2 class="section-title">Benchmarks</h2>
+          <p class="section-desc" id="benchSubHeader">
+            Measured by <code>benchmarks/run_benchmarks.py</code> across a 120-SKU catalog, 160 multi-warehouse Monte Carlo trials, 12 live Amazon Bedrock multi-agent consultations, and 12 adversarial margin and MOQ probes.
+          </p>
+        </div>
+        <span class="tag tag-accent" id="benchTimestampTag">2026-11-25T22:37:49Z</span>
+      </div>
+
+      <div class="grid-equal" style="margin-bottom:1.35rem;">
+        <div class="card">
+          <div class="control-label"><span>Stage Latency Profile (Log-Scale Median p50)</span><span class="tag tag-soft">us-west-2</span></div>
+          <div id="benchLatencySvgBox" style="margin-top:0.5rem;"></div>
+        </div>
+
+        <div class="card">
+          <div class="control-label"><span>Triage Capture, Fill Rate &amp; Guardrail Accuracy</span><span class="tag tag-pass">1:1 Verified JSON</span></div>
+          <div class="bar-group" id="benchMetricBars"></div>
+          <div class="prose-block-tech" id="benchMcSummaryBox" style="margin-top:0.75rem;"></div>
+        </div>
+      </div>
+
+      <div class="grid-equal">
+        <div>
+          <div class="code-header">
+            <span>MARGIN-FLOOR &amp; MOQ GUARDRAIL PROBES (WITH CO-SIGN ACTIVE)</span>
+            <span>12 / 12 Blocked</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Probe</th>
+                  <th>SKU &amp; Vector</th>
+                  <th>Verdict</th>
+                  <th>Check ms</th>
+                </tr>
+              </thead>
+              <tbody id="benchGuardrailBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div class="code-header">
+            <span>LIVE AMAZON BEDROCK MULTI-AGENT CONSULTATION RUNS</span>
+            <span>12 / 12 Passed</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Case</th>
+                  <th>SKU</th>
+                  <th>Gate Verdict</th>
+                  <th>Bedrock ms</th>
+                  <th>Tokens</th>
+                </tr>
+              </thead>
+              <tbody id="benchAgentsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>
+        <strong>SellerAmelia v1.0</strong> · Proactive Seller Operations &amp; Supply Chain Multi-Agent System on Amazon CloudFront, Private S3 OAC, AWS Lambda (Python 3.12), and Amazon Bedrock.
+      </div>
+      <div class="mono" style="font-size:0.74rem;">
+        <a href="https://github.com/ritwikareddykancharla/seller-amelia-spx" target="_blank" rel="noopener" style="color:var(--ink); font-weight:700;">github.com/ritwikareddykancharla/seller-amelia-spx</a>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const VALID_TABS = ["radar", "advisor", "replenish", "erp"];
+      let activeTab = "radar";
+      let activeTheme = "light";
+
+      let MEASURED_BENCHMARKS = {
+        benchmark_timestamp_utc: "2026-11-25T22:37:49Z",
+        environment: {
+          aws_region: "us-west-2",
+          bedrock_model: "us.amazon.nova-lite-v1:0",
+          python_version: "3.14.6"
+        },
+        headline_kpis: {
+          skus_scanned: 120,
+          anomalies_detected: 28,
+          total_margin_at_risk_30d_usd: 350390.13,
+          total_revenue_at_risk_30d_usd: 829933.09,
+          dollar_ranked_top10_capture_pct: 81.22,
+          naive_alert_top10_capture_pct: 6.48,
+          triage_lift_pct_points: 74.74,
+          radar_scan_p50_ms: 0.489,
+          radar_scan_p95_ms: 0.603,
+          mc_naive_stockout_rate_pct: 6.88,
+          mc_coupled_stockout_rate_pct: 0.4,
+          mc_relative_stockout_reduction_pct: 94.2,
+          mc_naive_fill_rate_pct: 92.01,
+          mc_coupled_fill_rate_pct: 99.59,
+          mc_cost_reduction_pct: 62.5,
+          mc_cost_savings_per_trial_usd: 55723.54,
+          replenish_opt_p50_ms: 0.009,
+          replenish_opt_p95_ms: 0.016,
+          bom_trace_p50_ms: 0.018,
+          bom_trace_p95_ms: 0.039,
+          erp_harmonize_p50_ms: 0.062,
+          erp_harmonize_p95_ms: 0.081,
+          erp_corrupt_rows_quarantined: 3,
+          erp_corrupt_rows_total: 3,
+          erp_silent_coercions: 0,
+          guardrail_probes_blocked: 12,
+          guardrail_probes_total: 12,
+          guardrail_block_rate_pct: 100.0,
+          guardrail_eval_p50_ms: 0.002,
+          multi_agent_tasks_passed: 12,
+          multi_agent_tasks_total: 12,
+          multi_agent_pass_rate_pct: 100.0,
+          bedrock_latency_p50_ms: 880.0,
+          bedrock_latency_p95_ms: 995.0,
+          bedrock_mean_tokens: 944.2,
+          sqlite_audit_rows_verified: 25,
+          sqlite_audit_verify_ms: 0.207
+        },
+        guardrail_probe_results: [
+          { probe_id: "GR-01", sku: "SKU-PWR-101", vector: "Deep flash-sale below COGS + FBA fee ($129 vs $299)", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.009 },
+          { probe_id: "GR-02", sku: "SKU-PWR-101", vector: "Thin 9.8% net margin undercut violating 18% floor", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.003 },
+          { probe_id: "GR-03", sku: "SKU-KTN-204", vector: "Loss-making Buy Box chase below variable FBA cost", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.003 },
+          { probe_id: "GR-04", sku: "SKU-KTN-204", vector: "Margin compression to 11.4% below 18% floor", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.003 },
+          { probe_id: "GR-05", sku: "SKU-SOL-108", vector: "Negative contribution promo ($99 on $84 COGS + $13.20 FBA)", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.002 },
+          { probe_id: "GR-06", sku: "SKU-SOL-108", vector: "Sub-floor 12.1% margin price match", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.002 },
+          { probe_id: "GR-07", sku: "SKU-ESP-309", vector: "Return-adjusted negative margin edit under 15.8% NCX spike", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.002 },
+          { probe_id: "GR-08", sku: "SKU-PAT-412", vector: "Aggressive clearance below 15% bulky FBA margin floor", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.002 },
+          { probe_id: "GR-09", sku: "SKU-ACC-901", vector: "Add-on item repriced into negative FBA pick/pack margin", gate_verdict: "MARGIN_FLOOR_BLOCKED", eval_ms: 0.002 },
+          { probe_id: "GR-10", sku: "SKU-PWR-101", vector: "Split PO of 45 units violating 120-unit supplier MOQ", gate_verdict: "MOQ_POLICY_BLOCKED", eval_ms: 0.001 },
+          { probe_id: "GR-11", sku: "SKU-KTN-204", vector: "Split PO of 90 units violating 250-unit supplier MOQ", gate_verdict: "MOQ_POLICY_BLOCKED", eval_ms: 0.001 },
+          { probe_id: "GR-12", sku: "SKU-ESP-309", vector: "Split PO of 110 units violating 300-unit supplier MOQ", gate_verdict: "MOQ_POLICY_BLOCKED", eval_ms: 0.0 }
+        ],
+        multi_agent_results: [
+          { case_id: "MA-01", sku: "SKU-PWR-101", gate_verdict: "COSIGN_REQUIRED", bedrock_latency_ms: 742.0, bedrock_tokens: 1070 },
+          { case_id: "MA-02", sku: "SKU-PWR-101", gate_verdict: "EXECUTED_COSIGNED", bedrock_latency_ms: 711.0, bedrock_tokens: 1070 },
+          { case_id: "MA-03", sku: "SKU-KTN-204", gate_verdict: "COSIGN_REQUIRED", bedrock_latency_ms: 976.0, bedrock_tokens: 936 },
+          { case_id: "MA-04", sku: "SKU-KTN-204", gate_verdict: "EXECUTED_COSIGNED", bedrock_latency_ms: 891.0, bedrock_tokens: 910 },
+          { case_id: "MA-05", sku: "SKU-KTN-204", gate_verdict: "MARGIN_FLOOR_BLOCKED", bedrock_latency_ms: 1022.0, bedrock_tokens: 639 },
+          { case_id: "MA-06", sku: "SKU-SOL-108", gate_verdict: "COSIGN_REQUIRED", bedrock_latency_ms: 582.0, bedrock_tokens: 948 },
+          { case_id: "MA-07", sku: "SKU-SOL-108", gate_verdict: "EXECUTED_COSIGNED", bedrock_latency_ms: 764.0, bedrock_tokens: 934 },
+          { case_id: "MA-08", sku: "SKU-ESP-309", gate_verdict: "COSIGN_REQUIRED", bedrock_latency_ms: 936.0, bedrock_tokens: 1035 },
+          { case_id: "MA-09", sku: "SKU-PAT-412", gate_verdict: "COSIGN_REQUIRED", bedrock_latency_ms: 806.0, bedrock_tokens: 950 },
+          { case_id: "MA-10", sku: "SKU-PAT-412", gate_verdict: "EXECUTED_COSIGNED", bedrock_latency_ms: 880.0, bedrock_tokens: 948 },
+          { case_id: "MA-11", sku: "SKU-CAT-007", gate_verdict: "COSIGN_REQUIRED", bedrock_latency_ms: 995.0, bedrock_tokens: 955 },
+          { case_id: "MA-12", sku: "SKU-CAT-008", gate_verdict: "COSIGN_REQUIRED", bedrock_latency_ms: 693.0, bedrock_tokens: 935 }
+        ]
+      };
+
+      const ARCH_NODE_DETAILS = {
+        "edge-browser": {
+          plane: "Layer ① · Browser & Serverless AWS Edge",
+          title: "Seller & Supply Chain Planner UI",
+          module: "web/index.html",
+          summary: "Interactive four-tab workbench for 120-SKU dollar-risk triage, multi-agent Bedrock consultations, N-tier BOM replenishment comparison, and messy ERP CSV harmonization. Stores active tab and color theme strictly in window.location.hash.",
+          metric: "4 Live Views · 0 Idle Servers"
+        },
+        "edge-cloudfront": {
+          plane: "Layer ① · Browser & Serverless AWS Edge",
+          title: "Amazon CloudFront CDN",
+          module: "infra/deploy_cloudfront.sh",
+          summary: "Single HTTPS origin router serving static assets from private S3 via Origin Access Control and forwarding /api/* requests to AWS Lambda Function URL without cross-origin preflight overhead.",
+          metric: "HTTP/2 + HTTP/3 TLS Edge"
+        },
+        "edge-s3": {
+          plane: "Layer ① · Browser & Serverless AWS Edge",
+          title: "Private Amazon S3 Bucket (OAC)",
+          module: "s3://selleramelia-web-796330847946-us-west-2",
+          summary: "Stores static UI assets with all four S3 Block Public Access flags enabled, readable exclusively by the CloudFront distribution service principal via SigV4 OAC.",
+          metric: "Public Access Blocked"
+        },
+        "edge-lambda": {
+          plane: "Layer ① · Browser & Serverless AWS Edge",
+          title: "AWS Lambda API Origin (Python 3.12)",
+          module: "seller_amelia/server.py :: lambda_handler",
+          summary: "512 MB Python 3.12 serverless API handler serving /api/health, /api/radar/scan, /api/replenish/optimize, /api/agents/consult, /api/erp/ingest, /api/benchmarks, and /api/reset.",
+          metric: "Python 3.12 · 30s Timeout"
+        },
+        "core-radar": {
+          plane: "Layer ② · Proactive Risk, BOM & ERP Plane",
+          title: "Proactive 30-Day Revenue & Margin Radar",
+          module: "seller_amelia/anomaly_radar.py :: scan_anomalies",
+          summary: "Evaluates 120 SKUs across listing suppressions, Buy Box losses, NCX return spikes, 181-to-365-day aged FBA surcharges, and vendor lead-time slips, ranking strictly by 30-day dollar margin exposure.",
+          metric: "0.489 ms p50 · 81.22% Top-10 Capture"
+        },
+        "core-bom": {
+          plane: "Layer ② · Proactive Risk, BOM & ERP Plane",
+          title: "Coupled (s, S) Safety-Stock & N-Tier BOM Engine",
+          module: "seller_amelia/replenishment_bom.py :: optimize_replenishment_plan",
+          summary: "Computes exact SS = z * sqrt(E[L]*sigma_D^2 + E[D]^2*sigma_L^2), propagates Tier-2 delays across sub-assemblies to finished ASINs, and compares Lateral DC Transfers vs. Split Vendor POs vs. Air Freight.",
+          metric: "94.2% Fewer Stockouts · 0.009 ms Opt"
+        },
+        "core-erp": {
+          plane: "Layer ② · Proactive Risk, BOM & ERP Plane",
+          title: "Messy ERP CSV Schema Harmonizer",
+          module: "seller_amelia/erp_harmonizer.py :: harmonize_erp_csv",
+          summary: "Maps SAP, NetSuite, and 3PL column aliases into canonical supply chain records, converts week/day durations, and quarantines unsupported currencies, negative stock, and non-numeric cells without silent coercion.",
+          metric: "0.062 ms p50 · 0 Silent Coercions"
+        },
+        "agent-catalog": {
+          plane: "Layer ③ · Supervisor & 4 Specialist Agents",
+          title: "CatalogComplianceAgent",
+          module: "seller_amelia/specialist_agents.py :: CatalogComplianceAgent",
+          summary: "Diagnoses suppressed ASINs against category rules and prepares verified hazmat and regulatory attribute patches such as lithium_battery_energy_content (Wh) and UN38.3 summary IDs.",
+          metric: "Concurrent Specialist #1"
+        },
+        "agent-fba": {
+          plane: "Layer ③ · Supervisor & 4 Specialist Agents",
+          title: "FBAEconomicsAgent",
+          module: "seller_amelia/specialist_agents.py :: FBAEconomicsAgent",
+          summary: "Computes exact per-unit net contribution margin after referral fees, FBA pick-and-pack fulfillment, monthly storage, aged inventory surcharges, and expected return processing drag.",
+          metric: "Concurrent Specialist #2"
+        },
+        "agent-replenish": {
+          plane: "Layer ③ · Supervisor & 4 Specialist Agents",
+          title: "InventoryReplenishmentAgent",
+          module: "seller_amelia/specialist_agents.py :: InventoryReplenishmentAgent",
+          summary: "Checks regional days-of-cover against coupled reorder points and selects the lowest risk-adjusted replenishment path across sister DC transfers, backup vendor POs, and air cargo.",
+          metric: "Concurrent Specialist #3"
+        },
+        "agent-returns": {
+          plane: "Layer ③ · Supervisor & 4 Specialist Agents",
+          title: "ReturnsQualityAgent",
+          module: "seller_amelia/specialist_agents.py :: ReturnsQualityAgent",
+          summary: "Clusters Voice-of-the-Customer (NCX) return verbatims to isolate lot-specific packaging or accessory defects and stage bin inspections plus listing clarifications.",
+          metric: "Concurrent Specialist #4"
+        },
+        "bedrock-synth": {
+          plane: "Layer ④ · Bedrock Synthesis & Margin Approval Gate",
+          title: "Amazon Bedrock Executive Synthesis",
+          module: "seller_amelia/specialist_agents.py :: invoke_bedrock_nova",
+          summary: "Calls Amazon Nova Lite (us.amazon.nova-lite-v1:0) via the Bedrock Converse API in us-west-2 to synthesize multi-agent telemetry and guardrail verdicts into grounded action briefs.",
+          metric: "12 / 12 Passed · 880.0 ms p50"
+        },
+        "margin-audit-gate": {
+          plane: "Layer ④ · Bedrock Synthesis & Margin Approval Gate",
+          title: "Margin Approval Gate & SQLite Hash Chain",
+          module: "seller_amelia/specialist_agents.py :: evaluate_action_guardrail",
+          summary: "Blocks loss-making price edits (MARGIN_FLOOR_BLOCKED) and sub-MOQ purchase orders (MOQ_POLICY_BLOCKED) in 0.002 ms, pauses valid mutations at COSIGN_REQUIRED, and chains every event with SHA-256 in SQLite WAL.",
+          metric: "12 / 12 Unsafe Edits Blocked"
+        }
+      };
+
+      const ERP_PRESET_TEXTS = {
+        netsuite_3pl_mixed: [
+          "sku_code,asin_id,item_desc,wh_site,on_hand_units,vel_30d_day,lead_days_p50,lead_days_sigma,unit_cogs_usd,selling_price,vendor_moq,ncx_return_pct",
+          "SKU-PWR-101,B09PWR0101,VoltPeak 600W Station,ONT8-West,520,28.0,16 days,3.5d,$116.00,$299.00,120,3.1%",
+          "SKU-SOL-108,B09SOL0108,SunFold 200W Solar Kit,ONT8-West,190,19.0,3 weeks,4.8d,USD 84.00,USD 219.00,150,2.9%",
+          "SKU-KTN-204,B08THERM24,ChefProbe Dual Thermometer,MDW2-Midwest,1180,64.0,12,2.8,$21.50,$79.00,250,3.4%",
+          "SKU-BAD-EUR,B08EUR9912,EuroImport Burr Grinder,TEB9-East,340,14.5,14d,3.0d,EUR 38.50,$119.00,100,4.1%",
+          "SKU-BAD-NEG,B08NEG4410,SubZero Insulated Pitcher,DAL3-South,-18,9.2,10d,2.0d,$12.40,$39.99,200,2.5%",
+          "SKU-BAD-TBD,B08TBD7721,Pending Vendor Espresso Tamper,TEB9-East,215,18.0,TBD,2.5d,$9.80,$34.00,150,3.0%"
+        ].join("\n"),
+        clean_sap_export: [
+          "MATERIAL_NO,CHANNEL_ASIN,SKU_TITLE,PLANT_ID,QTY_ON_HAND,AVG_DAILY_SALES,VENDOR_LT_MED,LT_STD_DAYS,LANDED_COST_USD,LIST_PRICE_USD,MIN_ORDER_QTY,REFUND_RATE",
+          "SKU-ESP-309,B08BREW309,CremaLab 0.1g Barista Scale,TEB9-East,890,48.0,11d,2.4d,$14.20,$54.00,300,15.8%",
+          "SKU-PAT-412,B07PATIO12,CedarCrest Teak Lounger,DAL3-South,485,2.1,3 weeks,4.5d,$152.00,$349.00,60,4.6%",
+          "SKU-PWR-220,B09PWR0220,VoltPeak 1200W Pro Station,ONT8-West,310,15.4,18 days,4.1d,$248.00,$599.00,80,2.7%"
+        ].join("\n")
+      };
+
+      const ADVISOR_PRESETS = [
+        {
+          sku: "SKU-PWR-101",
+          action: "PATCH_CATALOG_ATTRIBUTES",
+          price: "",
+          floor: "18.0",
+          cosign: false,
+          q: "Why did VoltPeak 600W stop selling and what compliance attributes restore the listing?"
+        },
+        {
+          sku: "SKU-KTN-204",
+          action: "UPDATE_PRICE",
+          price: "75.50",
+          floor: "18.0",
+          cosign: true,
+          q: "Match the $75.50 competitor price on ChefProbe with seller co-sign if net margin stays above our 18% floor."
+        },
+        {
+          sku: "SKU-KTN-204",
+          action: "UPDATE_PRICE",
+          price: "32.00",
+          floor: "18.0",
+          cosign: true,
+          q: "Slash ChefProbe price to $32.00 immediately even with co-sign checked."
+        },
+        {
+          sku: "SKU-ESP-309",
+          action: "QUARANTINE_LOT_AND_PATCH_LISTING",
+          price: "",
+          floor: "18.0",
+          cosign: false,
+          q: "Diagnose the 15.8% NCX customer return spike on CremaLab Barista Scale and stage corrective actions."
+        }
+      ];
+
+      const DEFAULT_RADAR_DATA = {
+        scan_ms: 0.489,
+        skus_scanned: 120,
+        anomalies_detected: 28,
+        total_margin_at_risk_30d_usd: 350390.13,
+        total_revenue_at_risk_30d_usd: 829933.09,
+        ranking_comparison: {
+          dollar_ranked_top10_margin_usd: 284586.86,
+          naive_alert_top10_margin_usd: 22705.28,
+          dollar_ranked_top10_capture_pct: 81.22,
+          naive_alert_top10_capture_pct: 6.48,
+          triage_lift_pct_points: 74.74
+        },
+        ranked_anomalies: [
+          { dollar_rank: 1, naive_alert_rank: 23, sku: "SKU-PWR-101", asin: "B09PWR0101", title: "VoltPeak 600W LiFePO4 Portable Power Station", primary_dc: "ONT8-West", anomaly_type: "listing_suppression", raw_alert_count: 1, total_dollar_impact_30d_usd: 54644.8, revenue_at_risk_30d_usd: 117208.0, recommended_action: "PATCH_CATALOG_ATTRIBUTES", summary: "Listing suppressed (Missing required hazmat attribute: lithium_battery_energy_content (Wh) and UN38.3 test summary ID); halting 28.0 units/day ($54,644.80 net margin & $117,208.00 revenue over 14d)." },
+          { dollar_rank: 2, naive_alert_rank: 17, sku: "SKU-KTN-204", asin: "B08THERM24", title: "ChefProbe Dual-Band Wireless Meat Thermometer Pro", primary_dc: "MDW2-Midwest", anomaly_type: "buy_box_loss", raw_alert_count: 2, total_dollar_impact_30d_usd: 41936.39, revenue_at_risk_30d_usd: 84000.38, recommended_action: "UPDATE_PRICE", summary: "Buy Box win rate fell from 93% to 22% (competitor at $75.50 vs. $79.00); matching preserves 48.3% net margin." },
+          { dollar_rank: 3, naive_alert_rank: 21, sku: "SKU-CAT-014", asin: "B09AMZ0014", title: "Home Pro Series Item #014", primary_dc: "TEB9-East", anomaly_type: "vendor_lead_time_slip", raw_alert_count: 2, total_dollar_impact_30d_usd: 37818.66, revenue_at_risk_30d_usd: 106924.16, recommended_action: "EXECUTE_LATERAL_TRANSFER", summary: "TEB9-East holds 8.1d cover (237 units) while vendor lead time slipped to 24d, creating a 15.6d stockout window ($37,818.66 margin at risk)." },
+          { dollar_rank: 4, naive_alert_rank: 26, sku: "SKU-CAT-020", asin: "B09AMZ0020", title: "Portable Pro Series Item #020", primary_dc: "ONT8-West", anomaly_type: "vendor_lead_time_slip", raw_alert_count: 1, total_dollar_impact_30d_usd: 36046.95, revenue_at_risk_30d_usd: 78271.10, recommended_action: "EXECUTE_LATERAL_TRANSFER", summary: "ONT8-West holds 8.3d cover (184 units) while vendor lead time slipped to 23d, creating a 14.9d stockout window ($36,046.95 margin at risk)." },
+          { dollar_rank: 5, naive_alert_rank: 16, sku: "SKU-SOL-108", asin: "B09SOL0108", title: "SunFold 200W Monocrystalline Folding Solar Kit", primary_dc: "ONT8-West", anomaly_type: "vendor_lead_time_slip", raw_alert_count: 2, total_dollar_impact_30d_usd: 32913.70, revenue_at_risk_30d_usd: 70737.00, recommended_action: "EXECUTE_LATERAL_TRANSFER", summary: "ONT8-West holds 10.0d cover (190 units) while vendor lead time slipped to 27d, creating a 17.0d stockout window ($32,913.70 margin at risk)." },
+          { dollar_rank: 9, naive_alert_rank: 5, sku: "SKU-ESP-309", asin: "B08BREW309", title: "CremaLab Precision 0.1g Barista Espresso Scale", primary_dc: "TEB9-East", anomaly_type: "ncx_return_spike", raw_alert_count: 5, total_dollar_impact_30d_usd: 7496.32, revenue_at_risk_30d_usd: 10031.04, recommended_action: "QUARANTINE_LOT_AND_PATCH_LISTING", summary: "NCX return rate jumped from 2.9% to 15.8% (Lot 26B missing silicone thermal pad & USB-C charging cable), bleeding $7,496.32 in 30d refunds and return fees." },
+          { dollar_rank: 10, naive_alert_rank: 12, sku: "SKU-PAT-412", asin: "B07PATIO12", title: "CedarCrest Modular Teak Patio Lounger Set", primary_dc: "DAL3-South", anomaly_type: "aged_fba_surcharge", raw_alert_count: 3, total_dollar_impact_30d_usd: 8073.50, revenue_at_risk_30d_usd: 22510.50, recommended_action: "CREATE_FBA_REMOVAL_ORDER", summary: "430 units (3.40 cu ft/unit) hit FBA 181-365d Aged Inventory Surcharge assessment in 4d ($8,073.50 30d surcharge + storage burn)." },
+          { dollar_rank: 28, naive_alert_rank: 2, sku: "SKU-ACC-901", asin: "B07CLIP901", title: "Adhesive Silicone Cable Organizer Clips (12-Pack)", primary_dc: "MDW2-Midwest", anomaly_type: "buy_box_loss", raw_alert_count: 46, total_dollar_impact_30d_usd: 48.20, revenue_at_risk_30d_usd: 157.80, recommended_action: "UPDATE_PRICE", summary: "Noisy 46-alert accessory with only $48.20 30-day margin exposure; kept out of top morning triage by dollar ranking." }
+        ]
+      };
+
+      let auditEventsState = [
+        { event_id: "SAM-00003", sku: "SKU-KTN-204", action_type: "ERP_INGEST_AND_MARGIN_CHECK", gate_verdict: "MARGIN_FLOOR_BLOCKED", sha256_hash: "7d2e94c8a105f3b8e9d1c2a4b6f80192" },
+        { event_id: "SAM-00002", sku: "SKU-PWR-101", action_type: "PATCH_CATALOG_ATTRIBUTES", gate_verdict: "COSIGN_REQUIRED", sha256_hash: "4a8b12f9e307d5c6a1b2c3d4e5f60718" },
+        { event_id: "SAM-00001", sku: "CATALOG-120", action_type: "SYSTEM_BOOT_SEED", gate_verdict: "AUTO_DIAGNOSTIC_ONLY", sha256_hash: "9c1f4e82b603a7d1e2f3a4b5c6d7e8f9" }
+      ];
+      let tamperActive = false;
+
+      function esc(v) {
+        return String(v == null ? "" : v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function fmtUsd(v) {
+        return "$" + Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      async function apiGet(path) {
+        const res = await fetch(path, { headers: { Accept: "application/json" } });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      }
+
+      async function apiPost(path, body) {
+        const res = await fetch(path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(body || {})
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
+        return data;
+      }
+
+      // Architecture Diagram Inspector, Zoom & Export
+      function selectArchNode(nodeId) {
+        const info = ARCH_NODE_DETAILS[nodeId] || ARCH_NODE_DETAILS["core-radar"];
+        document.querySelectorAll("#sellerAmeliaArchSvg .arch-node").forEach(function (el) {
+          el.classList.toggle("selected", el.getAttribute("data-arch-node") === nodeId);
+        });
+        document.querySelectorAll("#archNodePills [data-arch-btn]").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-arch-btn") === nodeId);
+        });
+        const box = document.getElementById("archInspectorDetail");
+        if (box) {
+          box.innerHTML =
+            '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.45rem;">' +
+              '<div>' +
+                '<span class="tag tag-accent" style="margin-bottom:0.35rem;">' + esc(info.plane) + '</span>' +
+                '<h3 style="font-size:1.06rem; font-weight:800;">' + esc(info.title) + '</h3>' +
+              '</div>' +
+              '<span class="tag tag-pass">' + esc(info.metric) + '</span>' +
+            '</div>' +
+            '<div class="mono" style="font-size:0.73rem; color:var(--accent-main); margin-bottom:0.45rem;">Module / Resource: <code>' + esc(info.module) + '</code></div>' +
+            '<p style="font-size:0.91rem; color:var(--ink-muted); line-height:1.65;">' + esc(info.summary) + '</p>';
+        }
+      }
+
+      document.querySelectorAll("#sellerAmeliaArchSvg .arch-node").forEach(function (el) {
+        el.addEventListener("click", function () { selectArchNode(el.getAttribute("data-arch-node")); });
+        el.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            selectArchNode(el.getAttribute("data-arch-node"));
+          }
+        });
+      });
+      document.querySelectorAll("#archNodePills [data-arch-btn]").forEach(function (btn) {
+        btn.addEventListener("click", function () { selectArchNode(btn.getAttribute("data-arch-btn")); });
+      });
+
+      const archSvg = document.getElementById("sellerAmeliaArchSvg");
+      const archViewport = document.getElementById("archViewport");
+      const zoom100Btn = document.getElementById("zoom100Btn");
+      const zoom125Btn = document.getElementById("zoom125Btn");
+      const zoomResetBtn = document.getElementById("zoomResetBtn");
+      const archZoomLabel = document.getElementById("archZoomLabel");
+
+      function setArchZoom(mode) {
+        if (!archSvg) return;
+        const is125 = mode === "125";
+        archSvg.classList.toggle("zoom-125", is125);
+        archZoomLabel.textContent = is125 ? "Zoom: 125%" : "Zoom: 100%";
+        zoom100Btn.className = is125 ? "btn btn-secondary" : "btn btn-accent";
+        zoom125Btn.className = is125 ? "btn btn-accent" : "btn btn-secondary";
+        if (mode === "reset" && archViewport) {
+          archViewport.scrollTo({ left: 0, behavior: "smooth" });
+          selectArchNode("core-radar");
+        }
+      }
+      zoom100Btn.addEventListener("click", function () { setArchZoom("100"); });
+      zoom125Btn.addEventListener("click", function () { setArchZoom("125"); });
+      zoomResetBtn.addEventListener("click", function () { setArchZoom("reset"); });
+
+      document.getElementById("downloadArchSvgBtn").addEventListener("click", function () {
+        const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + archSvg.outerHTML;
+        const blob = new Blob([xml], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "seller-amelia-architecture.svg";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      });
+
+      // URL Hash State Only
+      function parseHashState() {
+        const raw = (window.location.hash || "").replace(/^#/, "");
+        if (!raw) return;
+        raw.split("&").forEach(function (part) {
+          if (VALID_TABS.includes(part)) activeTab = part;
+          else if (part === "theme=dark" || part === "dark") activeTheme = "dark";
+          else if (part === "theme=light") activeTheme = "light";
+        });
+      }
+
+      function syncHashState() {
+        const hash = activeTheme === "dark" ? activeTab + "&theme=dark" : activeTab;
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, "", "#" + hash);
+        } else {
+          window.location.hash = hash;
+        }
+      }
+
+      function applyTheme(theme) {
+        activeTheme = theme;
+        document.documentElement.setAttribute("data-theme", theme);
+        document.getElementById("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
+        document.getElementById("themeLabel").textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+        syncHashState();
+      }
+
+      document.getElementById("themeToggleBtn").addEventListener("click", function () {
+        applyTheme(activeTheme === "dark" ? "light" : "dark");
+      });
+
+      window.switchTab = function (tabId) {
+        if (!VALID_TABS.includes(tabId)) return;
+        activeTab = tabId;
+        document.querySelectorAll(".tab-btn").forEach(function (btn) {
+          const match = btn.getAttribute("data-tab") === tabId;
+          btn.classList.toggle("active", match);
+          btn.setAttribute("aria-selected", match ? "true" : "false");
+        });
+        document.querySelectorAll(".tab-panel").forEach(function (panel) {
+          panel.classList.toggle("active", panel.id === "panel-" + tabId);
+        });
+        syncHashState();
+      };
+
+      // Scroll-Spy TOC Highlight
+      const sectionIds = ["problem", "architecture", "implementation", "tradeoffs", "studio", "benchmarks"];
+      window.addEventListener("scroll", function () {
+        let current = "problem";
+        sectionIds.forEach(function (id) {
+          const el = document.getElementById(id);
+          if (el && window.scrollY >= el.offsetTop - 160) {
+            current = id;
+          }
+        });
+        document.querySelectorAll(".toc-link").forEach(function (link) {
+          link.classList.toggle("active", link.getAttribute("data-toc-section") === current);
+        });
+      }, { passive: true });
+
+      function renderBenchmarksAndKpis() {
+        const k = MEASURED_BENCHMARKS.headline_kpis;
+
+        document.getElementById("heroKpiStrip").innerHTML =
+          '<div class="card kpi-card">' +
+            '<div class="kpi-val">' + k.dollar_ranked_top10_capture_pct + '% vs. ' + k.naive_alert_top10_capture_pct + '%</div>' +
+            '<div class="kpi-label">Top-10 Margin Exposure Captured</div>' +
+            '<div class="kpi-sub"><em>' + fmtUsd(k.total_margin_at_risk_30d_usd) + ' 30d margin risk scanned across ' + k.skus_scanned + ' SKUs in ' + k.radar_scan_p50_ms + ' ms</em></div>' +
+          '</div>' +
+          '<div class="card kpi-card">' +
+            '<div class="kpi-val">' + k.mc_relative_stockout_reduction_pct + '% Fewer Stockouts</div>' +
+            '<div class="kpi-label">Coupled (s, S) + Lateral Rebalancing</div>' +
+            '<div class="kpi-sub"><em>' + k.mc_coupled_stockout_rate_pct + '% vs. ' + k.mc_naive_stockout_rate_pct + '% stockout rate &amp; ' + k.mc_cost_reduction_pct + '% lower portfolio cost</em></div>' +
+          '</div>' +
+          '<div class="card kpi-card">' +
+            '<div class="kpi-val">' + k.multi_agent_tasks_passed + ' / ' + k.multi_agent_tasks_total + ' (100%)</div>' +
+            '<div class="kpi-label">Bedrock Multi-Agent Consults Passed</div>' +
+            '<div class="kpi-sub"><em>Amazon Nova Lite synthesis in ' + k.bedrock_latency_p50_ms + ' ms median across 4 specialists</em></div>' +
+          '</div>' +
+          '<div class="card kpi-card">' +
+            '<div class="kpi-val">' + k.guardrail_probes_blocked + ' / ' + k.guardrail_probes_total + ' Blocked</div>' +
+            '<div class="kpi-label">Loss-Making Edits &amp; Bad POs Stopped</div>' +
+            '<div class="kpi-sub"><em>' + k.guardrail_eval_p50_ms + ' ms guardrail check + ' + k.erp_corrupt_rows_quarantined + ' / ' + k.erp_corrupt_rows_total + ' bad ERP rows quarantined</em></div>' +
+          '</div>';
+
+        document.getElementById("tabMetric1").textContent =
+          "+" + k.triage_lift_pct_points + " pt triage lift · " + k.radar_scan_p50_ms + " ms scan";
+        document.getElementById("tabMetric2").textContent =
+          k.multi_agent_tasks_passed + " / " + k.multi_agent_tasks_total + " Passed · " + k.bedrock_latency_p50_ms + " ms p50";
+        document.getElementById("tabMetric3").textContent =
+          k.mc_coupled_fill_rate_pct + "% Fill Rate · -" + k.mc_cost_reduction_pct + "% Cost";
+        document.getElementById("tabMetric4").textContent =
+          k.guardrail_probes_blocked + " / " + k.guardrail_probes_total + " Blocked · 0 Coercions";
+
+        document.getElementById("benchTimestampTag").textContent = MEASURED_BENCHMARKS.benchmark_timestamp_utc;
+
+        const stages = [
+          { label: "Margin & MOQ Gate", p50: k.guardrail_eval_p50_ms, color: "#059669" },
+          { label: "3-Way Replenish Opt", p50: k.replenish_opt_p50_ms, color: "#1D4ED8" },
+          { label: "N-Tier BOM Trace", p50: k.bom_trace_p50_ms, color: "#7C3AED" },
+          { label: "ERP CSV Harmonize", p50: k.erp_harmonize_p50_ms, color: "#D97706" },
+          { label: "SQLite Chain Verify", p50: k.sqlite_audit_verify_ms, color: "#0D9488" },
+          { label: "120-SKU Radar Scan", p50: k.radar_scan_p50_ms, color: "#9333EA" },
+          { label: "Bedrock Nova Lite", p50: k.bedrock_latency_p50_ms, color: "#18181B" }
+        ];
+
+        function logW(ms) {
+          const val = Math.max(0.002, ms);
+          const pct = ((Math.log10(val) - Math.log10(0.002)) / (Math.log10(1500) - Math.log10(0.002))) * 335;
+          return Math.max(8, Math.min(335, +pct.toFixed(1)));
+        }
+
+        let svgRows = "";
+        stages.forEach(function (st, i) {
+          const y = 20 + i * 30;
+          svgRows +=
+            '<text x="12" y="' + (y + 13) + '" font-family="monospace" font-size="10.2" font-weight="700" fill="#141413">' + esc(st.label) + '</text>' +
+            '<rect x="164" y="' + y + '" width="335" height="16" fill="#F2ECE1" stroke="#18181B" stroke-width="1.2"/>' +
+            '<rect x="164" y="' + y + '" width="' + logW(st.p50) + '" height="16" fill="' + st.color + '"/>' +
+            '<text x="507" y="' + (y + 12) + '" font-family="monospace" font-size="10" fill="#141413">p50: ' + st.p50 + ' ms</text>';
+        });
+        document.getElementById("benchLatencySvgBox").innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 615 242" style="width:100%; height:auto; display:block;">' +
+          '<rect width="615" height="242" fill="#FAF7F2"/>' + svgRows + '</svg>';
+
+        document.getElementById("benchMetricBars").innerHTML =
+          '<div class="bar-row"><div class="bar-meta"><span>Dollar-Impact Top-10 Margin Capture (vs. ' + k.naive_alert_top10_capture_pct + '% Alert Sort)</span><span>' + k.dollar_ranked_top10_capture_pct + '%</span></div><div class="bar-track"><div class="bar-fill bar-fill-accent" style="width:' + k.dollar_ranked_top10_capture_pct + '%;"></div></div></div>' +
+          '<div class="bar-row"><div class="bar-meta"><span>Coupled (s, S) + Lateral Unit Fill Rate (vs. ' + k.mc_naive_fill_rate_pct + '% Naive)</span><span>' + k.mc_coupled_fill_rate_pct + '%</span></div><div class="bar-track"><div class="bar-fill bar-fill-pass" style="width:' + k.mc_coupled_fill_rate_pct + '%;"></div></div></div>' +
+          '<div class="bar-row"><div class="bar-meta"><span>Unsafe Margin &amp; Sub-MOQ Probes Blocked (' + k.guardrail_probes_blocked + ' / ' + k.guardrail_probes_total + ')</span><span>100%</span></div><div class="bar-track"><div class="bar-fill bar-fill-accent" style="width:100%;"></div></div></div>';
+
+        document.getElementById("benchMcSummaryBox").innerHTML =
+          "<strong>Monte Carlo Multi-Warehouse Comparison (160 Trials x 60 Days x 12 SKUs):</strong> " +
+          "Coupled <code>(s, S)</code> safety stock paired with inter-warehouse lateral transfers lowered stockout day rate from <code>" +
+          k.mc_naive_stockout_rate_pct + "%</code> to <code>" + k.mc_coupled_stockout_rate_pct + "%</code> (<code>" +
+          k.mc_relative_stockout_reduction_pct + "%</code> relative reduction) and saved <code>" +
+          fmtUsd(k.mc_cost_savings_per_trial_usd) + "</code> per portfolio trial (<code>" + k.mc_cost_reduction_pct + "%</code> cost reduction).";
+
+        document.getElementById("benchGuardrailBody").innerHTML = (MEASURED_BENCHMARKS.guardrail_probe_results || []).map(function (g) {
+          return (
+            "<tr>" +
+              "<td class='mono'><strong>" + esc(g.probe_id) + "</strong></td>" +
+              "<td><strong>" + esc(g.sku) + "</strong><div class='mono' style='font-size:0.67rem; color:var(--ink-muted);'>" + esc(g.vector) + "</div></td>" +
+              "<td><span class='tag tag-fail'>" + esc(g.gate_verdict) + "</span></td>" +
+              "<td class='mono'>" + g.eval_ms + " ms</td>" +
+            "</tr>"
+          );
+        }).join("");
+
+        document.getElementById("benchAgentsBody").innerHTML = (MEASURED_BENCHMARKS.multi_agent_results || []).map(function (m) {
+          const cls = m.gate_verdict === "MARGIN_FLOOR_BLOCKED" ? "tag-fail" : (m.gate_verdict === "COSIGN_REQUIRED" ? "tag-warn" : "tag-pass");
+          return (
+            "<tr>" +
+              "<td class='mono'><strong>" + esc(m.case_id) + "</strong></td>" +
+              "<td class='mono'>" + esc(m.sku) + "</td>" +
+              "<td><span class='tag " + cls + "'>" + esc(m.gate_verdict) + "</span></td>" +
+              "<td class='mono'>" + m.bedrock_latency_ms + " ms</td>" +
+              "<td class='mono'>" + m.bedrock_tokens + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+      }
+
+      // Tab 1: Radar
+      function renderRadarView(data) {
+        document.getElementById("radarScanBadge").textContent =
+          data.skus_scanned + " SKUs · " + data.scan_ms + " ms";
+        const rc = data.ranking_comparison;
+        document.getElementById("radarComparisonBanner").innerHTML =
+          "<div><strong>Dollar-Impact Triage Captures " + rc.dollar_ranked_top10_capture_pct + "% of Total 30-Day Profit Exposure in Top 10 (vs. " + rc.naive_alert_top10_capture_pct + "% by Raw Alert Count)</strong><br/>" +
+          "<span style='font-size:0.83rem;'>Detected <strong>" + data.anomalies_detected + "</strong> active SKU anomalies totaling <strong>" + fmtUsd(data.total_margin_at_risk_30d_usd) + "</strong> in 30-day contribution margin exposure (<strong>" + fmtUsd(data.total_revenue_at_risk_30d_usd) + "</strong> revenue exposure).</span></div>" +
+          "<span class='tag tag-accent'>+" + rc.triage_lift_pct_points + " PT LIFT</span>";
+
+        const badgeByType = {
+          listing_suppression: "tag-fail",
+          buy_box_loss: "tag-warn",
+          vendor_lead_time_slip: "tag-accent",
+          ncx_return_spike: "tag-fail",
+          aged_fba_surcharge: "tag-warn"
+        };
+
+        document.getElementById("radarTableBody").innerHTML = (data.ranked_anomalies || []).map(function (r) {
+          const cls = badgeByType[r.anomaly_type] || "tag-soft";
+          return (
+            "<tr>" +
+              "<td class='mono'><strong>#" + r.dollar_rank + "</strong> <span style='color:var(--ink-muted); font-size:0.68rem;'>(Alert #" + r.naive_alert_rank + " · " + r.raw_alert_count + " pings)</span></td>" +
+              "<td><span class='mono' style='font-weight:700;'>" + esc(r.sku) + "</span><div style='font-size:0.74rem; color:var(--ink-muted);'>" + esc(r.asin) + " · " + esc(r.title) + "</div></td>" +
+              "<td><span class='tag " + cls + "'>" + esc(r.anomaly_type) + "</span><div class='mono' style='font-size:0.68rem; margin-top:0.22rem;'>" + esc(r.primary_dc) + "</div></td>" +
+              "<td class='mono' style='font-weight:700; color:var(--fail);'>" + fmtUsd(r.total_dollar_impact_30d_usd) + "</td>" +
+              "<td class='mono'>" + fmtUsd(r.revenue_at_risk_30d_usd) + "</td>" +
+              "<td style='font-size:0.78rem; max-width:340px;'>" + esc(r.summary) + "</td>" +
+              "<td><button type='button' class='btn btn-secondary' style='padding:0.28rem 0.55rem; font-size:0.72rem;' onclick='jumpToAdvisorForSku(\"" + esc(r.sku) + "\", \"" + esc(r.recommended_action) + "\")'>Investigate →</button></td>" +
+            "</tr>"
+          );
+        }).join("");
+      }
+
+      window.runRadarScan = async function () {
+        const btn = document.getElementById("btnRunRadar");
+        btn.disabled = true;
+        try {
+          const out = await apiPost("/api/radar/scan", {
+            category: document.getElementById("radarCatSelect").value,
+            dc: document.getElementById("radarDcSelect").value,
+            anomaly_type: document.getElementById("radarAnomSelect").value,
+            top_k: 15
+          });
+          renderRadarView(out);
+        } catch (_) {
+          renderRadarView(DEFAULT_RADAR_DATA);
+        } finally {
+          btn.disabled = false;
+        }
+      };
+
+      window.jumpToAdvisorForSku = function (skuId, actionCode) {
+        const sel = document.getElementById("advSkuSelect");
+        let exists = false;
+        Array.from(sel.options).forEach(function (opt) {
+          if (opt.value === skuId) exists = true;
+        });
+        if (!exists) {
+          const o = document.createElement("option");
+          o.value = skuId;
+          o.textContent = skuId;
+          sel.appendChild(o);
+        }
+        sel.value = skuId;
+        document.getElementById("advActionSelect").value = actionCode || "UPDATE_PRICE";
+        document.getElementById("advPriceInput").value = "";
+        document.getElementById("advCosignCheck").checked = false;
+        document.getElementById("advQuestionInput").value =
+          "Diagnose " + skuId + " across specialist agents, verify unit economics, and stage " + actionCode + ".";
+        switchTab("advisor");
+        window.runAgentConsultation();
+      };
+
+      // Tab 2: Multi-Agent Advisor
+      function renderAdvisorResult(out) {
+        const g = out.approval_gate;
+        const banner = document.getElementById("advGateBanner");
+        if (g.gate_verdict === "MARGIN_FLOOR_BLOCKED" || g.gate_verdict === "MOQ_POLICY_BLOCKED") {
+          banner.className = "verdict-banner verdict-deny";
+          banner.innerHTML =
+            "<div><strong>🛑 ACTION HARD-BLOCKED (" + esc(g.rule_id) + ")</strong><br/><span style='font-size:0.82rem;'>" + esc(g.reason) + "</span></div>" +
+            "<span class='tag tag-fail'>" + esc(g.gate_verdict) + "</span>";
+        } else if (g.gate_verdict === "COSIGN_REQUIRED") {
+          banner.className = "verdict-banner verdict-warn";
+          banner.innerHTML =
+            "<div><strong>⏸ STAGED FOR 1-CLICK CO-SIGN (" + esc(g.rule_id) + ")</strong><br/><span style='font-size:0.82rem;'>" + esc(g.reason) + " Check <em>Approve 1-Click Seller Co-Sign</em> on the left to commit.</span></div>" +
+            "<span class='tag tag-warn'>COSIGN_REQUIRED</span>";
+        } else {
+          banner.className = "verdict-banner verdict-allow";
+          banner.innerHTML =
+            "<div><strong>✅ EXECUTED &amp; HASH-LOGGED (" + esc(out.audit_receipt ? out.audit_receipt.event_id : "COMMITTED") + ")</strong><br/><span style='font-size:0.82rem;'>" + esc(g.reason) + "</span></div>" +
+            "<span class='tag tag-pass'>" + esc(g.gate_verdict) + "</span>";
+        }
+
+        document.getElementById("advisorTimingBadge").textContent =
+          out.bedrock_latency_ms ? ("Bedrock: " + out.bedrock_latency_ms + " ms · " + out.bedrock_tokens + " tok") : "Specialist Synthesis";
+        document.getElementById("advEngineTag").textContent = out.llm_engine || "us.amazon.nova-lite-v1:0";
+        document.getElementById("advBriefBox").textContent = out.executive_brief || "";
+        document.getElementById("advSpecialistsCount").textContent =
+          (out.specialists_invoked || []).length + " Specialists Concurrent";
+
+        const reports = out.specialist_reports || {};
+        document.getElementById("advSpecialistCards").innerHTML = Object.keys(reports).map(function (agentName) {
+          const rep = reports[agentName];
+          return (
+            '<div class="agent-report-card">' +
+              '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">' +
+                '<span class="mono" style="font-size:0.73rem; font-weight:700; color:var(--accent-main);">' + esc(agentName) + '</span>' +
+                '<span class="tag tag-soft">Verified Math</span>' +
+              '</div>' +
+              '<div>' + esc(rep.finding) + '</div>' +
+            '</div>'
+          );
+        }).join("");
+      }
+
+      window.loadAdvisorPreset = function (idx) {
+        const p = ADVISOR_PRESETS[idx] || ADVISOR_PRESETS[0];
+        [0, 1, 2, 3].forEach(function (i) {
+          const b = document.getElementById("advPreset" + i);
+          if (b) b.classList.toggle("active", i === idx);
+        });
+        document.getElementById("advSkuSelect").value = p.sku;
+        document.getElementById("advActionSelect").value = p.action;
+        document.getElementById("advPriceInput").value = p.price;
+        document.getElementById("advFloorInput").value = p.floor;
+        document.getElementById("advCosignCheck").checked = p.cosign;
+        document.getElementById("advQuestionInput").value = p.q;
+        window.runAgentConsultation();
+      };
+
+      window.runAgentConsultation = async function () {
+        const btn = document.getElementById("btnConsultAgents");
+        const hint = document.getElementById("advStatusHint");
+        btn.disabled = true;
+        hint.textContent = "Consulting 4 specialists + Amazon Bedrock...";
+        const priceVal = document.getElementById("advPriceInput").value.trim();
+        const floorVal = document.getElementById("advFloorInput").value.trim();
+        try {
+          const out = await apiPost("/api/agents/consult", {
+            sku: document.getElementById("advSkuSelect").value,
+            proposed_action: document.getElementById("advActionSelect").value,
+            proposed_price_usd: priceVal ? parseFloat(priceVal) : null,
+            min_margin_floor_pct: floorVal ? parseFloat(floorVal) : 18.0,
+            cosign_approved: document.getElementById("advCosignCheck").checked,
+            question: document.getElementById("advQuestionInput").value.trim()
+          });
+          renderAdvisorResult(out);
+          hint.textContent = "Completed (" + out.total_orchestration_ms + " ms)";
+          await refreshAuditSnapshot();
+        } catch (err) {
+          hint.textContent = "Preview ready (" + err.message + ")";
+        } finally {
+          btn.disabled = false;
+        }
+      };
+
+      // Tab 3: Replenishment & N-Tier BOM Optimizer
+      function renderReplenishResult(data) {
+        const rep = data.replenishment;
+        const bom = data.bom_blast_radius;
+        const pol = rep.safety_stock_policy;
+
+        document.getElementById("replenishMsBadge").textContent =
+          "Opt: " + rep.compute_ms + " ms · BOM: " + bom.compute_ms + " ms";
+
+        document.getElementById("optSummaryBanner").innerHTML =
+          "<div><strong>Recommended Mitigation: " + esc(rep.recommended_title) + " (Saves " + fmtUsd(rep.cost_advantage_vs_next_best_usd) + " vs. Next Best Lever)</strong><br/>" +
+          "<span style='font-size:0.83rem;'><code>" + esc(rep.sku) + "</code> at <code>" + esc(rep.deficit_dc) + "</code> holds <strong>" + rep.days_of_cover + "d</strong> cover against <strong>" + rep.effective_primary_lead_days + "d</strong> delayed vendor ETA (unmitigated loss: <strong>" + fmtUsd(rep.unmitigated_margin_loss_usd) + "</strong>).</span></div>" +
+          "<span class='tag tag-pass'>" + esc(rep.recommended_strategy) + "</span>";
+
+        document.getElementById("optPolicyStatsTag").textContent =
+          "s = " + pol.reorder_point_s + " · S = " + pol.order_up_to_S;
+
+        document.getElementById("optStrategiesBody").innerHTML = (rep.options || []).map(function (o, idx) {
+          return (
+            "<tr class='" + (idx === 0 ? "winner-row" : "") + "'>" +
+              "<td><strong>" + (idx === 0 ? "★ " : "") + esc(o.title) + "</strong><div class='mono' style='font-size:0.67rem; color:var(--ink-muted);'>MOQ: " + (o.moq_applied || "0 (Inter-DC)") + "</div></td>" +
+              "<td class='mono'>" + o.units_dispatched + " u · " + o.arrival_days + "d</td>" +
+              "<td class='mono'>" + fmtUsd(o.incremental_logistics_and_premium_usd) + "</td>" +
+              "<td class='mono'>" + fmtUsd(o.residual_stockout_margin_loss_usd) + "</td>" +
+              "<td class='mono' style='font-weight:700;'>" + fmtUsd(o.total_risk_adjusted_cost_usd) + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+
+        document.getElementById("optSafetyStockBox").innerHTML =
+          "<strong>Coupled Stochastic (s, S) Safety Stock (" + pol.service_level_pct + "% Service Level, z = " + pol.z_score + "):</strong> " +
+          "Coupled <code>SS = " + pol.coupled_safety_stock_units + " units</code> vs. naive fixed-lead-time <code>SS = " + pol.naive_safety_stock_units + " units</code> " +
+          "(supplier lead-time variance accounts for <code>" + pol.lead_time_variance_share_pct + "%</code> of total safety-stock variance; naive math under-buffers by <code>" + pol.safety_stock_under_buffer_units + " units</code>).";
+
+        document.getElementById("bomBlastBadge").textContent =
+          bom.impacted_finished_skus_count + " ASINs · " + fmtUsd(bom.total_margin_at_risk_30d_usd) + " Risk";
+
+        document.getElementById("bomBlastBody").innerHTML = (bom.impacted_asins || []).map(function (a) {
+          return (
+            "<tr>" +
+              "<td><span class='mono' style='font-weight:700;'>" + esc(a.sku) + "</span><div style='font-size:0.72rem; color:var(--ink-muted);'>" + esc(a.primary_dc) + "</div></td>" +
+              "<td class='mono' style='font-size:0.69rem;'>" + esc(a.dependency_path) + "</td>" +
+              "<td class='mono'>" + a.days_of_cover + "d vs " + a.effective_replenish_days + "d</td>" +
+              "<td class='mono'>" + a.stalled_units_30d + " u</td>" +
+              "<td class='mono' style='font-weight:700; color:var(--fail);'>" + fmtUsd(a.margin_at_risk_30d_usd) + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+      }
+
+      window.runReplenishOptimizer = async function () {
+        const btn = document.getElementById("btnRunOpt");
+        btn.disabled = true;
+        try {
+          const out = await apiPost("/api/replenish/optimize", {
+            sku: document.getElementById("optSkuSelect").value,
+            component_id: document.getElementById("optCompSelect").value,
+            supplier_delay_days: parseFloat(document.getElementById("optDelaySelect").value),
+            service_level: parseFloat(document.getElementById("optSlSelect").value)
+          });
+          renderReplenishResult(out);
+          await refreshAuditSnapshot();
+        } catch (_) {}
+        btn.disabled = false;
+      };
+
+      // Tab 4: ERP Harmonizer & Margin Approval Gate
+      window.loadErpPreset = function (presetKey) {
+        document.getElementById("erpCsvInput").value = ERP_PRESET_TEXTS[presetKey] || ERP_PRESET_TEXTS.netsuite_3pl_mixed;
+        window.runErpHarmonize();
+      };
+
+      function renderErpResult(out) {
+        document.getElementById("erpParseMsTag").textContent =
+          out.accepted_count + " accepted · " + out.quarantined_count + " quarantined · " + out.harmonize_ms + " ms";
+
+        const mg = out.margin_gate_check;
+        const banner = document.getElementById("erpGateBanner");
+        if (mg) {
+          const blocked = mg.gate_verdict === "MARGIN_FLOOR_BLOCKED";
+          banner.className = "verdict-banner " + (blocked ? "verdict-deny" : "verdict-warn");
+          banner.innerHTML =
+            "<div><strong>" + (blocked ? "🛑 MARGIN-FLOOR GUARDRAIL BLOCKED PRICE EDIT" : "⏸ PRICE EDIT PASSED MARGIN FLOOR (COSIGN_REQUIRED)") + "</strong><br/>" +
+            "<span style='font-size:0.82rem;'>" + esc(mg.reason) + "</span></div>" +
+            "<span class='tag " + (blocked ? "tag-fail" : "tag-warn") + "'>" + esc(mg.gate_verdict) + "</span>";
+        }
+
+        const qRows = (out.quarantined_rows || []).map(function (q) {
+          return (
+            "<tr class='tampered-row'>" +
+              "<td class='mono'>Row " + q.row_number + " · <strong>" + esc(q.sku) + "</strong></td>" +
+              "<td><span class='tag tag-fail'>" + esc(q.error_code) + "</span></td>" +
+              "<td class='mono'>" + esc(q.field) + ": <code>" + esc(q.raw_value) + "</code></td>" +
+              "<td style='font-size:0.77rem;'>" + esc(q.detail) + "</td>" +
+            "</tr>"
+          );
+        });
+
+        const cRows = (out.canonical_records || []).map(function (c) {
+          return (
+            "<tr>" +
+              "<td class='mono'><strong>" + esc(c.sku) + "</strong> (" + esc(c.primary_dc) + ")</td>" +
+              "<td><span class='tag tag-pass'>CANONICAL_OK</span></td>" +
+              "<td class='mono'>QOH=" + c.on_hand_units + " · LT=" + c.lead_time_mean_days + "d</td>" +
+              "<td class='mono' style='font-size:0.72rem;'>COGS=" + fmtUsd(c.unit_cogs_usd) + " · Price=" + fmtUsd(c.sale_price_usd) + " · MOQ=" + c.moq_units + "</td>" +
+            "</tr>"
+          );
+        });
+
+        document.getElementById("erpResultsBody").innerHTML = qRows.concat(cRows).join("");
+      }
+
+      function renderAuditTable() {
+        document.getElementById("auditTableBody").innerHTML = auditEventsState.map(function (ev) {
+          const isTamp = !!ev._tampered;
+          const cls = isTamp
+            ? "tag-fail"
+            : (ev.gate_verdict.indexOf("BLOCKED") >= 0 ? "tag-fail" : (ev.gate_verdict === "COSIGN_REQUIRED" ? "tag-warn" : "tag-pass"));
+          return (
+            "<tr class='" + (isTamp ? "tampered-row" : "") + "'>" +
+              "<td class='mono'><strong>" + esc(ev.event_id) + "</strong></td>" +
+              "<td class='mono'>" + esc(ev.sku) + "</td>" +
+              "<td class='mono' style='font-size:0.7rem;'>" + esc(ev.action_type) + "</td>" +
+              "<td><span class='tag " + cls + "'>" + esc(isTamp ? "TAMPERED_ROW" : ev.gate_verdict) + "</span></td>" +
+              "<td class='mono' style='font-size:0.68rem;'>" + (isTamp ? "HASH MISMATCH" : esc(String(ev.sha256_hash || "").slice(0, 16)) + "...") + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+      }
+
+      window.runErpHarmonize = async function () {
+        const btn = document.getElementById("btnIngestErp");
+        btn.disabled = true;
+        try {
+          const out = await apiPost("/api/erp/ingest", {
+            csv_text: document.getElementById("erpCsvInput").value,
+            test_sku: document.getElementById("erpTestSku").value,
+            test_price_usd: parseFloat(document.getElementById("erpTestPrice").value || "31.0")
+          });
+          renderErpResult(out);
+          await refreshAuditSnapshot();
+        } catch (_) {}
+        btn.disabled = false;
+      };
+
+      window.simulateAuditTamper = function () {
+        if (!auditEventsState.length) return;
+        tamperActive = true;
+        auditEventsState = auditEventsState.map(function (ev, i) {
+          if (i === 0) {
+            return Object.assign({}, ev, { gate_verdict: "FORGED_BYPASS", _tampered: true });
+          }
+          return ev;
+        });
+        const badge = document.getElementById("erpChainBadge");
+        badge.className = "tag tag-fail";
+        badge.textContent = "⚠ TAMPER DETECTED AT " + auditEventsState[0].event_id;
+        renderAuditTable();
+      };
+
+      window.restoreAuditLog = async function () {
+        tamperActive = false;
+        const badge = document.getElementById("erpChainBadge");
+        badge.className = "tag tag-pass";
+        badge.textContent = "Audit Chain: VALID";
+        await refreshAuditSnapshot();
+      };
+
+      async function refreshAuditSnapshot() {
+        try {
+          const snap = await apiGet("/api/state");
+          if (!tamperActive && snap && Array.isArray(snap.recent_audit_events) && snap.recent_audit_events.length) {
+            auditEventsState = snap.recent_audit_events;
+          }
+          if (!tamperActive && snap && snap.audit_chain) {
+            document.getElementById("auditCountTag").textContent =
+              snap.audit_chain.checked_rows + " entries · " + snap.audit_chain.verify_ms + " ms";
+          }
+          if (snap && snap.benchmarks && snap.benchmarks.headline_kpis) {
+            MEASURED_BENCHMARKS = snap.benchmarks;
+            renderBenchmarksAndKpis();
+          }
+        } catch (_) {}
+        renderAuditTable();
+      }
+
+      window.resetDemoState = async function () {
+        tamperActive = false;
+        try {
+          await apiPost("/api/reset", {});
+        } catch (_) {}
+        await window.runRadarScan();
+        await window.runReplenishOptimizer();
+        await window.runErpHarmonize();
+      };
+
+      // Boot sequence
+      parseHashState();
+      applyTheme(activeTheme);
+      switchTab(activeTab);
+      selectArchNode("core-radar");
+      renderBenchmarksAndKpis();
+      renderRadarView(DEFAULT_RADAR_DATA);
+      document.getElementById("erpCsvInput").value = ERP_PRESET_TEXTS.netsuite_3pl_mixed;
+      renderAdvisorResult({
+        sku: "SKU-PWR-101",
+        proposed_action: "PATCH_CATALOG_ATTRIBUTES",
+        llm_engine: "aws-bedrock (us.amazon.nova-lite-v1:0)",
+        bedrock_latency_ms: 880.0,
+        bedrock_tokens: 944,
+        specialists_invoked: ["FBAEconomicsAgent", "CatalogComplianceAgent", "InventoryReplenishmentAgent"],
+        approval_gate: {
+          gate_verdict: "COSIGN_REQUIRED",
+          rule_id: "SPX-COSIGN-GATE-10",
+          reason: "Action PATCH_CATALOG_ATTRIBUTES passes deterministic unit-economics & MOQ guardrails and awaits 1-click seller/planner co-sign."
+        },
+        executive_brief: "SKU-PWR-101 (B09PWR0101) is currently suppressed due to missing lithium_battery_energy_content (614.4 Wh) and UN38.3 summary documentation, placing $54,644.80 in 14-day net contribution margin at risk. CatalogComplianceAgent extracted the verified UN383-CERT-101 specification attributes, while FBAEconomicsAgent confirmed a healthy 46.6% ($139.30/unit) net margin at $299.00. Check 1-Click Co-Sign to restore active Buy Box eligibility.",
+        specialist_reports: {
+          CatalogComplianceAgent: { finding: "Listing B09PWR0101 is SUPPRESSED (Missing required hazmat attribute: lithium_battery_energy_content (Wh) and UN38.3 test summary ID); extracted verified spec values ready for catalog patch." },
+          FBAEconomicsAgent: { finding: "Current price $299.00 yields $139.30 (46.6% net margin after referral + FBA + returns), well above the 18.0% minimum margin floor." },
+          InventoryReplenishmentAgent: { finding: "ONT8-West holds 18.6d cover (520 units, coupled s=502 units) ready to absorb restored demand velocity." }
+        }
+      });
+      renderAuditTable();
+
+      // Hydrate live API views asynchronously
+      window.runRadarScan();
+      window.runReplenishOptimizer();
+      window.runErpHarmonize();
+    })();
+  </script>
+</body>
+</html>

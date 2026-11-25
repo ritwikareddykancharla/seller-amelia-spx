@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seller-amelia-spx"
+version = "1.0.0"
+description = "SellerAmelia: Proactive Seller Operations & Supply-Chain Multi-Agent System on AWS Lambda and Amazon Bedrock"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["seller_amelia*"]
