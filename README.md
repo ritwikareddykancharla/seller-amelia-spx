@@ -4,7 +4,7 @@
 - **Live `/api/health` Endpoint**: https://d33709dnlxr6aq.cloudfront.net/api/health
 - **GitHub Repository**: https://github.com/ritwikareddykancharla/seller-amelia-spx
 
-SellerAmelia is a serverless Python 3.12 application for proactive Amazon Seller Central operations and multi-echelon supply chain planning, deployed on **Amazon CloudFront + Private S3 (OAC) + AWS Lambda (`python3.12`) + SQLite WAL + Amazon Bedrock (`us.amazon.nova-lite-v1:0`)**.
+SellerAmelia is a serverless application for proactive Amazon Seller Central operations and multi-echelon supply chain planning, deployed on **Amazon CloudFront + Private S3 (OAC) + AWS Lambda (serverless) + SQLite WAL + Amazon Bedrock (`us.amazon.nova-lite-v1:0`)**.
 
 ![SellerAmelia System Architecture](docs/architecture.svg)
 

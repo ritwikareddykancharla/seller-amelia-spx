@@ -975,7 +975,7 @@
           <span class="section-kicker">02 · Architecture</span>
           <h2 class="section-title">Architecture</h2>
           <p class="section-desc">
-            Amazon CloudFront serves the static web application from a private S3 bucket via Origin Access Control (OAC) and routes <code>/api/*</code> calls to Python 3.12 on AWS Lambda backed by Amazon Bedrock. Click any component below to inspect its module, boundary rules, and measured timing.
+            Amazon CloudFront serves the static web application from a private S3 bucket via Origin Access Control (OAC) and routes <code>/api/*</code> calls to AWS Lambda backed by Amazon Bedrock. Click any component below to inspect its module, boundary rules, and measured timing.
           </p>
         </div>
       </div>
@@ -1006,7 +1006,7 @@
 
           <!-- LAYER 1: BROWSER & SERVERLESS AWS EDGE -->
           <rect x="22" y="18" width="1176" height="146" fill="#FAFAFA" stroke="#71717A" stroke-width="1.6" stroke-dasharray="8 6" />
-          <text x="36" y="42" class="svg-title" font-size="21" font-weight="700" fill="#9333EA">① Browser UI &amp; Serverless AWS Edge (CloudFront + Private S3 OAC + Python 3.12 Lambda)</text>
+          <text x="36" y="42" class="svg-title" font-size="21" font-weight="700" fill="#9333EA">① Browser UI &amp; Serverless AWS Edge (CloudFront + Private S3 OAC + AWS Lambda)</text>
 
           <g class="arch-node selected" data-arch-node="edge-browser" tabindex="0">
             <rect class="arch-stroke-main" x="38" y="56" width="205" height="86" fill="#F3E8FF" stroke="#18181B" stroke-width="2.1" />
@@ -1042,7 +1042,7 @@
 
           <g class="arch-node" data-arch-node="edge-lambda" tabindex="0">
             <rect class="arch-stroke-main" x="642" y="101" width="268" height="53" fill="#FEF3C7" stroke="#18181B" stroke-width="2" />
-            <text x="776" y="124" text-anchor="middle" class="svg-title" font-size="20" font-weight="700" fill="#18181B">AWS Lambda (Python 3.12)</text>
+            <text x="776" y="124" text-anchor="middle" class="svg-title" font-size="20" font-weight="700" fill="#18181B">AWS Lambda</text>
             <text x="776" y="143" text-anchor="middle" class="svg-mono" font-size="9.2" fill="#92400E">seller_amelia/server.py · 512 MB</text>
           </g>
 
@@ -1184,7 +1184,7 @@
           <span class="section-kicker">03 · Implementation</span>
           <h2 class="section-title">Implementation</h2>
           <p class="section-desc">
-            Five focused Python 3.12 modules separate deterministic unit-economics and stochastic inventory math from multi-agent Amazon Bedrock synthesis and approval enforcement.
+            Five focused backend modules separate deterministic unit-economics and stochastic inventory math from multi-agent Amazon Bedrock synthesis and approval enforcement.
           </p>
         </div>
         <span class="tag tag-pass">12 / 12 Unit Tests Passing</span>
@@ -1271,9 +1271,9 @@
       <div class="module-grid" style="margin-bottom:0;">
         <div class="card">
           <span class="step-badge">01 · DETERMINISTIC MATH VS LLM ARITHMETIC</span>
-          <h3 style="font-size:1.08rem; font-weight:800; margin:0.45rem 0;">Exact Python Fee &amp; Safety-Stock Math Before Bedrock Synthesis</h3>
+          <h3 style="font-size:1.08rem; font-weight:800; margin:0.45rem 0;">Exact Unit-Economics &amp; Safety-Stock Math Before Bedrock Synthesis</h3>
           <p style="font-size:0.92rem; color:var(--ink-muted); line-height:1.68;">
-            Asking a language model to estimate FBA referral fees or square-root safety-stock terms risks rounding drift and hallucinated margins. SellerAmelia computes all unit economics, BOM delays, and replenishment costs in deterministic Python first (<code>&lt; 0.5 ms</code>), then passes verified JSON figures to Amazon Bedrock solely for executive synthesis.
+            Asking a language model to estimate FBA referral fees or square-root safety-stock terms risks rounding drift and hallucinated margins. SellerAmelia computes all unit economics, BOM delays, and replenishment costs deterministically first (<code>&lt; 0.5 ms</code>), then passes verified JSON figures to Amazon Bedrock solely for executive synthesis.
           </p>
         </div>
 
@@ -1297,7 +1297,7 @@
           <span class="step-badge">04 · SERVERLESS LAMBDA VS ALWAYS-ON CLUSTERS</span>
           <h3 style="font-size:1.08rem; font-weight:800; margin:0.45rem 0;">Zero Idle Cloud Cost vs. Ephemeral Container State</h3>
           <p style="font-size:0.92rem; color:var(--ink-muted); line-height:1.68;">
-            Hosting static assets on Private S3 behind CloudFront OAC and running <code>/api/*</code> on Python 3.12 AWS Lambda with SQLite WAL in <code>/tmp</code> keeps idle infrastructure cost at <code>$0.00</code>, with the trade-off that demo mutations reset when cold containers recycle. Production multi-tenant deployments swap the store to DynamoDB or Aurora Serverless.
+            Hosting static assets on Private S3 behind CloudFront OAC and running <code>/api/*</code> on AWS Lambda with SQLite WAL in <code>/tmp</code> keeps idle infrastructure cost at <code>$0.00</code>, with the trade-off that demo mutations reset when cold containers recycle. Production multi-tenant deployments swap the store to DynamoDB or Aurora Serverless.
           </p>
         </div>
       </div>
@@ -1793,7 +1793,7 @@
 
     <footer class="footer">
       <div>
-        <strong>SellerAmelia v1.0</strong> · Proactive Seller Operations &amp; Supply Chain Multi-Agent System on Amazon CloudFront, Private S3 OAC, AWS Lambda (Python 3.12), and Amazon Bedrock.
+        <strong>SellerAmelia v1.0</strong> · Proactive Seller Operations &amp; Supply Chain Multi-Agent System on Amazon CloudFront, Private S3 OAC, AWS Lambda, and Amazon Bedrock.
       </div>
       <div class="mono" style="font-size:0.74rem;">
         <a href="https://github.com/ritwikareddykancharla/seller-amelia-spx" target="_blank" rel="noopener" style="color:var(--ink); font-weight:700;">github.com/ritwikareddykancharla/seller-amelia-spx</a>
@@ -1909,10 +1909,10 @@
         },
         "edge-lambda": {
           plane: "Layer ① · Browser & Serverless AWS Edge",
-          title: "AWS Lambda API Origin (Python 3.12)",
+          title: "AWS Lambda API Origin",
           module: "seller_amelia/server.py :: lambda_handler",
-          summary: "512 MB Python 3.12 serverless API handler serving /api/health, /api/radar/scan, /api/replenish/optimize, /api/agents/consult, /api/erp/ingest, /api/benchmarks, and /api/reset.",
-          metric: "Python 3.12 · 30s Timeout"
+          summary: "512 MB AWS Lambda serverless API handler serving /api/health, /api/radar/scan, /api/replenish/optimize, /api/agents/consult, /api/erp/ingest, /api/benchmarks, and /api/reset.",
+          metric: "AWS Lambda · 30s Timeout"
         },
         "core-radar": {
           plane: "Layer ② · Proactive Risk, BOM & ERP Plane",
