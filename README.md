@@ -1,6 +1,7 @@
 # SellerAmelia: Proactive Seller Operations and Supply Chain Multi-Agent System
 
-- **Live CloudFront Application**: *(Populated during `infra/deploy_cloudfront.sh` deployment)*
+- **Live CloudFront Application**: https://d33709dnlxr6aq.cloudfront.net
+- **Live `/api/health` Endpoint**: https://d33709dnlxr6aq.cloudfront.net/api/health
 - **GitHub Repository**: https://github.com/ritwikareddykancharla/seller-amelia-spx
 
 SellerAmelia is a serverless Python 3.12 application for proactive Amazon Seller Central operations and multi-echelon supply chain planning, deployed on **Amazon CloudFront + Private S3 (OAC) + AWS Lambda (`python3.12`) + SQLite WAL + Amazon Bedrock (`us.amazon.nova-lite-v1:0`)**.
